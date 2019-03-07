@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>水印设置</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link id="layuicss-layer" rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+  <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+  <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+</head>
+<body layadmin-themealias="default">
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-tab" style="padding-top:20px;padding-left:20px;">
+            <ul class="layui-tab-title">
+                <li><a href="{:url('Setting/site')}">网站设置</a></li>
+                <li class="layui-this">水印设置</li>
+                <li><a href="{:url('Setting/wtx_info')}">新闻设置</a></li>
+            </ul>
+            <div class="layui-card-body" pad15="">
+                <div class="layui-form" wid100="">
+                    <form class="layui-form" action="" lay-filter="component-form-element">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">水印开关：</label>
+                            <div class="layui-input-block">
+                                <input type="checkbox" name="water_info[switch]" <if condition="$water_info.switch eq 1">checked</if> lay-skin="switch" lay-text="开|关">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">水印类型：</label>
+                            <div class="layui-input-block">
+
+                                <input type="radio" name="water_info[type]" value="1" title="图片" lay-filter="radio" <if condition="$water_info.type eq 1">checked</if>>
+                                <input type="radio" name="water_info[type]" value="2" title="文字" lay-filter="radio" <if condition="$water_info.type eq 2">checked</if>>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" id="pic_water" <if condition="$water_info.type eq 2">style="display: none"</if>>
+                            <label class="layui-form-label">水印图片</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="water_info[pic]" id="pic" style="width:20%;display: inline" value="{$water_info.pic|default=''}" placeholder="水印图片"  autocomplete="off" class="layui-input">
+                                <button type="button" class="layui-btn upload" lay-data="{size:2024,url:'{:url('Setting/settingUpload',array('type'=>'pic'))}'}">
+                                    <i class="layui-icon" ></i>上传图片
+                                </button>
+                            </div>
+                        </div>
+                        <div id="text_water"  <if condition="$water_info.type eq 1">style="display: none"</if>>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">水印文字</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="water_info[txt]" style="width:40%;"  placeholder="请输入水印文字" value="{$water_info.txt|default=''}" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">水印位置：</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="water_info[position]" value="1" title="左上" <if condition="$water_info.position eq 1">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="2" title="中上" <if condition="$water_info.position eq 2">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="3" title="右上" <if condition="$water_info.position eq 3">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="4" title="左中" <if condition="$water_info.position eq 4">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="5" title="中间" <if condition="$water_info.position eq 5">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="6" title="右中" <if condition="$water_info.position eq 6">checked</if> >
+
+                                <input type="radio" name="water_info[position]" value="7" title="左下" <if condition="$water_info.position eq 7">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="8" title="中下" <if condition="$water_info.position eq 8">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="9" title="右下" <if condition="$water_info.position eq 9">checked</if>>
+
+                                <input type="radio" name="water_info[position]" value="0" title="随机" <if condition="$water_info.position eq 0">checked</if>>
+
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit="" lay-filter="add">立即提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+      layui.config({
+          base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+          movement: '/tpl/' //动态模板所在目录
+      }).extend({
+          index: 'lib/index' //主入口模块
+      }).use(['index', 'upload','form'], function(){
+          var $ = layui.jquery
+              ,upload = layui.upload
+              ,form = layui.form;
+          upload.render({
+              elem: '.upload'
+              ,done: function(res){
+                  if(res.status < 1){
+                      return layer.msg('上传失败');
+                  }else{
+                      $('#'+res.type).val(res.path);
+                  }
+              }
+          });
+
+          form.on('radio(radio)', function(data){
+              var type = data.value;
+              if(type==1){
+                  $("#text_water").hide();
+                  $("#pic_water").show();
+              }else{
+                  $("#pic_water").hide();
+                  $("#text_water").show();
+              }
+          });
+
+          form.on('submit(add)', function(data){
+              $.ajax({
+                  url:"{:url('setting/water')}",
+                  data:$('form').serializeArray(),
+                  type:'post',
+                  dataType:'json',
+                  success:function(res){
+                      if(res.status != 1){
+                          layer.msg(res.msg, {icon: 5});
+                          return false;
+                      }else{
+                          layer.alert(res.msg, {icon: 6},function () {
+                              window.location.reload();
+                          });
+                          return false;
+                      }
+                  },
+                  error : function(XMLHttpRequest, textStatus, errorThrown) {
+                      layer.msg('网络错误！');
+                      return false;
+                  }
+              });
+              return false;
+          });
+      });
+  </script>
+</body>
+</html>

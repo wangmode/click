@@ -1,0 +1,16 @@
+@font-face {
+    font-family:my-icon;src:url(../font/extend/iconfont.eot?v=230);
+    src:url(../font/extend/iconfont.eot?v=230#iefix) format('embedded-opentype'),
+    url(../font/extend/iconfont.svg?v=230#iconfont) format('svg'),
+    url(../font/extend/iconfont.woff?v=230) format('woff'),
+    url(../font/extend/iconfont.ttf?v=230) format('truetype')
+}
+.my-icon {
+    font-family:"my-icon" !important;
+    font-size:16px;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.layui-entend-folder:before { content: "\e67d"; }
+.layui-entend-folder:before { content: "\e686"; }

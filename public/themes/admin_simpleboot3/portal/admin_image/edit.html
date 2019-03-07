@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!-- saved from url=(0066)http://www.layui.com/admin/std/dist/views/app/content/comment.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>layuiAdmin 内容系统 -添加文章</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+  <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+   <script src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+    <style>
+        .layui-form-select dl{
+            z-index:1000;
+        }
+    </style>
+</head>
+  
+  <body>
+    <div class="layui-card-body">
+        <form class="layui-form" action="" lay-filter="component-form-element">
+            <div class="layui-row layui-col-space10 layui-form-item">
+                <div class="layui-col-lg6">
+                    <label class="layui-form-label">所属栏目：</label>
+                    <div class="layui-input-block"  style="width:650px;">
+                        <select name="post[categories]" lay-verify="required">
+                            <option value="">请选择</option>
+                            {$categories_tree}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item ">
+                <label class="layui-form-label">标题：</label>
+                <div class="layui-input-inline" style="width:650px;">
+                    <input id="post-id" type="hidden" name="post[id]" value="{$post.id}">
+                    <input type="text" name="post[post_title]" value="{$post.post_title}" lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+                <i class="layui-icon layui-icon-tips" lay-tips="标题"></i>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">关键词：</label>
+                <div class="layui-input-inline" style="width:650px;">
+                    <input type="text" name="post[post_keywords]" value="{$post.post_keywords}" lay-verify="required"
+                           placeholder="" autocomplete="off" class="layui-input">
+                </div>
+                <i class="layui-icon layui-icon-tips" lay-tips="多关键词之间用空格或者“,”隔开"></i>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">摘要：</label>
+                <div class="layui-input-inline" style="width:650px;">
+                    <textarea name="post[post_excerpt]" lay-verify="excerpt" value="{$post.post_excerpt}" placeholder=""  class="layui-textarea">{$post.post_excerpt}</textarea>
+                </div>
+                <i class="layui-icon layui-icon-tips" lay-tips="最多能输入230个字符"></i>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">内容</label>
+                <div class="layui-input-block" style="width:650px;">
+                    <textarea id="demo" name="post_content" style="display: none;" lay-verify="post_content">{$post.post_content}</textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">缩略图：</label>
+                <div class="layui-input-inline" style="width: 30%;">
+                    <input type="text" name="post[more][thumbnail]" lay-verify="image" id="logo"
+                           value="{$post.more.thumbnail}" class="layui-input">
+                </div>
+                <button style="float:left" type="button" class="layui-btn upload"
+                        lay-data="{size:2048,url:'{:url('AdminImage/articleUpload',array('type'=>'logo'))}'}"><i
+                        class="layui-icon"></i>上传图片
+                </button>
+                <div class="layui-form-mid layui-word-aux">（建议：450*450）</div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="component-form-element">立即提交</button>
+                </div>
+            </div>
+        </form>
+          </div>
+
+
+
+<style>
+  html{background-color: #fff;color: black;}
+</style>
+<script>
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form', 'upload'], function () {
+        var $ = layui.$
+            , upload = layui.upload
+            , form = layui.form;
+
+        upload.render({
+            elem: '.upload'
+            , done: function (res) {
+                if (res.status < 1) {
+                    return layer.msg('上传失败');
+                } else {
+                    $('#' + res.type).val(res.path);
+                }
+            }
+        });
+      
+      form.verify({
+                    excerpt : function(value) {
+                        if (value.length >230) {
+                            return '最多输入230个字';
+                        }
+                    },
+        
+        			image:function(value) {
+                        if (value.length <=0230) {
+                            return '不能为空';
+                        }
+                    },
+                  
+                });
+
+        form.on('submit(component-form-element)', function (data) {
+            $.ajax({
+                async: false,
+                url: "{:url('AdminImage/editPost')}",
+                data: $('form').serializeArray(),
+                type: 'post',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code != 0) {
+                        layer.msg(res.msg, {icon: 5});
+                        return false;
+                    } else {
+                        layer.alert(res.msg, {icon: 6}, function () {
+                            // 获得frame索引
+                            var index = parent.layer.getFrameIndex(window.name);
+                            //关闭当前frame
+                            parent.layer.close(index);
+                            window.parent.location.reload();
+                        });
+                        return false;
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.msg('网络失败，请刷新页面后重试!')
+                    return false;
+                }
+            });
+            return false;
+        });
+
+        layui.use('layedit', function () {
+            var layedit = layui.layedit;
+            //上传图片,必须放在 创建一个编辑器前面
+            layedit.set({
+                uploadImage: {
+                    url: "{:url('admin/Common/editor_upload',array('type'=>'logo'))}'}" //接口url
+                    , type: 'post' //默认post
+                }
+            });
+            layedit.build('demo'); //建立编辑器
+        });
+
+        //自定义验证规则
+        form.verify({
+            post_content: function (value) {
+                console.log('test1');
+                layedit.sync(index);
+            }
+        });
+
+    });
+</script>
+</body>
+</html>

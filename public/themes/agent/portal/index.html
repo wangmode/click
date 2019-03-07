@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   
+    <title>{$siteInfo.sitename|default=''}</title>
+    <meta name="keywords" content="{$siteInfo.keywords|default=''}"/>
+    <meta name="description" content="{$siteInfo.description|default=''}" />
+
+
+<link type="text/css" rel="stylesheet" href="__TMPL__/public/assets/css/style.css">
+
+<script type="text/javascript">
+    //全局变量
+    var GV = {
+        ROOT: "__ROOT__/",
+        WEB_ROOT: "__WEB_ROOT__/",
+        JS_ROOT: "static/js/"
+    };
+</script>
+
+<script type="text/javascript" src="__TMPL__/public/assets/js/1.9.1jquery.min.js"></script>
+
+<script type="text/javascript">
+    $(function() {
+        var url = 'portal/stat/index/type/para.html';
+        $.getScript(url);
+    });
+</script>
+
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/base.js"></script>
+<hook name="before_head_end"/>
+</head>
+<body>
+
+<include file="head"/>
+
+<div class="box pt10">
+<div class="xx-product-left fl">
+<div class="class-title">
+
+<php>
+    //$pro_cid = getCid("pro");
+    $pro_cid = 4;
+    $pro_cat = getCategory($pro_cid);
+</php>
+
+<b>B</b><h2>{$city.name}{$pro_cat.name}</h2><span>PRODUCTS</span>
+</div>
+
+<php>
+    $child1 = getChildrenCid($pro_cid);
+</php>
+
+<div class="class-con">
+
+<volist name="$child1" id="c1">
+    <div class="onec"><a href="{$domain}/{$c1.alias}" title="{$city.name}{$c1.name}">{$city.name}{$c1.name|getSubstr=0,11}</a></div>
+</volist>
+
+</div>
+</div>
+<div class="xx-product-right fl">
+<div class="heading pl10">
+{$city.name}{$pro_cat.name}
+ <php>
+       $cat = getCategory(4);
+</php>
+<a href="{$domain}/{$cat.alias}" title="更多" class="h-more fr">+更多</a>
+</div>
+
+<php>
+    //$pro_cid = getCid("pro");
+    $pro_cid =4;
+    $pageset = 12;
+    $articles = getArticles($pro_cid,$pageset);
+</php>
+
+<ul>
+    <volist name="articles" id="vo">
+        <li>
+        <div>
+            <a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}">
+                <img src="{:get_img_url($vo.thumbnail,2,240,180)}" alt="{$city.name}{$vo.post_title}" border="0">
+            </a>
+        </div>
+        <a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}" title="{$city.name}{$vo.post_title} ">{$city.name}{$vo.post_title|getSubstr=0,15}</a>
+        </li>
+    </volist>
+
+</ul>
+</div>
+<div class="clear"></div>
+</div>
+<div class="mt20 ads1">
+</div>
+<div class="box">
+
+<php>
+    //$page1_cid = getCid("page1");
+    $page1_cid = 2;
+    $vo = getPageByCid($page1_cid);
+
+    //$image4_cid = getCid("image4");
+    $image4_cid = 4;
+    $image4_cat = getCategory($image4_cid);
+    $pageset = 5;
+    $articles4 = getArticles($image4_cid,$pageset);
+
+    //$image5_cid = getCid("image5");
+    $image5_cid = 4;
+    $image5_cat = getCategory($image5_cid);
+    $pageset = 5;
+    $articles5 = getArticles($image5_cid,$pageset);
+
+</php>
+
+<div class="sp-heading">
+<h2>{$city.name}{$vo.post_title}</h2>
+<div class="sh-sub">
+<div class="shbox">诚信第一、品质第一、服务至上</div>
+</div>
+</div>
+
+<div class="intro mt36">
+    <img src="{:get_img_url($vo.thumbnail,1,600,360)}" alt="{$vo.post_title}" />
+<h2>{$siteInfo.company|default=''}</h2>
+<div class="intro-info">
+    <span>
+        <php>
+           $content = $vo['post_content'];
+           $content = htmlspecialchars_decode($content);
+           echo getSubstr($content,0,430);
+       </php>
+     </span>
+</div>
+</div>
+<div class="clear"></div>
+</div>
+</div>
+
+
+<php>
+    //$image1_cid = getCid("image1");
+    $image1_cid = 10;
+    $pageset = 5;
+    $articles = getArticles($image1_cid,$pageset);
+</php>
+
+<div class="box">
+<div class="sp-heading">
+<h2>{$city.name}企业<span>风采</span></h2>
+<div class="sh-sub">
+<div class="shbox">品质求生存，效益求发展</div>
+</div>
+</div>
+<div class="par-box box mt20">
+
+
+<div class="partners"  id="wenda">
+<ul>
+<volist name="articles" id="vo">
+<li>
+<div class="lh-info">
+<a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$image1_cid))}" title="{$city.name}{$vo.post_title}" class="pa-img" rel="nofollow"><img src="{:get_img_url($vo.thumbnail,2,225,169)}" alt="{$vo.post_title}" border="0" width="225px" height="169px"></a>
+<div><a class="cvp1" href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$image1_cid))}" title="{$city.name}{$vo.post_title}" rel="nofollow">{$city.name}{$vo.post_title}</a></div>
+</div>
+</li>
+</volist>
+</ul>
+</div>
+<script>
+    mswMove("wenda", "", "", "", true, "left", false, 245, 0, 30, 3)
+</script>
+
+</div>
+</div>
+<div class="box mt36">
+<div class="news fl">
+
+<php>
+
+    //$list1_cid = getCid("list1");
+    $list1_cid =3;
+    $pageset = 7;
+
+    $res = getChildrenCid($list1_cid);
+    $articles =[];
+    foreach($res as $k => $v){
+        $articles[] = getArticles($v['id'],$pageset);
+    }
+
+    $num = count($res);
+
+</php>
+
+<div class="heading pl10">
+  <php>
+       $cat = getCategory(31);
+  </php>
+{$cat.name}<a href="{$domain}/{$cat.alias}.html" title="更多资讯" class="h-more fr">+更多资讯</a>
+</div>
+<ul class="mt20">
+<volist name="articles[0]" id="vo" >
+<li><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}" title="{$city.name}{$vo.post_title}">{$city.name}{$vo.post_title}</a><span>{:date('m-d',$vo.published_time)}</span></li>
+</volist>
+
+</ul>
+</div>
+<div class="news fr">
+<div class="heading pl10">
+  <php>
+       $cat = getCategory(32);
+  </php>
+{$cat.name}<a href="{$domain}/{$cat.alias}.html" title="更多知识" class="h-more fr">+更多知识</a>
+</div>
+<ul class="mt20">
+<volist name="articles[1]" id="vo" >
+<li><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}" title="{$city.name}{$vo.post_title}">{$city.name}{$vo.post_title}</a><span>{:date('m-d ',$vo.published_time)}</span></li>
+</volist>
+
+</ul>
+</div>
+<div class="clear"></div>
+</div>
+<div class="mt36 ads1"></div>
+<div class="box">
+
+<php>
+    //$image3_cid = getCid("image3");
+    $image3_cid = 9;
+    $articles = getArticles($image3_cid,$pageset);
+</php>
+
+<div class="sp-heading">
+<h2>选择我们<span>的理由</span></h2>
+<div class="sh-sub">
+<div class="shbox">专业、技术、规模、服务</div>
+</div>
+</div>
+<div id="advantage3">
+<div class="ys">
+
+<div class="ys-1"><img src="__TMPL__/public/assets/images/ys1.jpg" alt=""></div>
+
+<div class="ys-2">
+    <ul class="ys-wenzi">
+        <h2 style="margin-top:40px;"><span>01</span>选择我们理由一</h2>
+        <li class="ys-a">
+            <p>拥有专业的生产力，支持现货供应，大量生产；</p>
+            <p>拥有自己的技术团队，庞大的生产线，生产效率较高；</p>
+            <p>拥有多台先进的机械设备具备大批量的生产能力；</p>
+        </li>
+    </ul>
+
+    <ul class="ys-wenzi">
+
+        <h2><span>02</span>选择我们理由二</h2>
+        <li class="ys-a">
+            <p>我厂产品同等品质、价格更亲民；</p>
+            <p>厂家直接出货，省去很多中间经销商的利润；</p>
+            <p>本厂依靠先进的生产检测设备、标准的生产条件及要求，保障产品质量；</p>
+        </li>
+ 
+    </ul>
+</div>
+<div class="ys-3">
+    <ul class="ys-wenzi">
+
+        <h2><span>03</span>选择我们理由三</h2>
+        <li class="ys-a">
+            <p>从精选优质原材料到护栏板成品，一条龙生产。</p>
+            <p>拥有专业化规模、生产能力较大的生产线。</p>
+            <p>所有出厂护栏板品均经过严格检查，保证每一批护栏板产品质量。</p>
+        </li>
+
+    </ul>
+
+    <ul class="ys-wenzi">
+        <h2><span>04</span>选择我们理由四</h2>
+        <li class="ys-a">
+            <p>具有完善的售前、售中、售后的服务体系；</p>
+            <p>有优秀的工程师为您在线解决问题；</p>
+            <p>客服详细跟踪我厂出货的每一批订单，有专业的客服随时为您解决问题；</p>
+        </li>
+    </ul>
+</div>
+
+
+<div class="ys-4"><img src="__TMPL__/public/assets/images/ys2.jpg" alt=""></div>
+
+
+</div>
+</div>
+<div class="clear"></div>
+</div>
+<div class="box">
+
+<php>
+    //$image2_cid = getCid("image2");
+    $image2_cid = 5;
+    $pageset = 8;
+    $articles = getArticles($image2_cid,$pageset);
+
+
+</php>
+
+<div class="sp-heading">
+<h2>{$city.name}<span>经典案例</span></h2>
+<div class="sh-sub">
+<div class="shbox">精益求精，实力打造</div>
+</div>
+</div>
+<div class="speech mt20">
+<ul>
+<volist name="articles" id="vo">
+<li><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}" title="{$city.name}{$vo.post_title}" rel="nofollow"><img src="{:get_img_url($vo.thumbnail,2,302,202)}" alt="{$city.name}{$vo.post_title}" border="0"></a></li>
+</volist>
+
+<div class="clear"></div>
+</ul>
+</div>
+</div>
+<div class="box mt28">
+<div class="linksindex">
+<script type="text/javascript">
+    function setTab(n){
+        var tabs=document.getElementById("navs").getElementsByTagName("li");
+        var show=document.getElementById("main").getElementsByTagName("div");
+        for(var i=0;i<tabs.length;i++){
+            if(i==n){
+                tabs[i].className="nav_bar";
+                show[i].className="main_bar";
+            }else{
+                tabs[i].className=" ";
+                show[i].className=" ";
+            }
+        }
+    }
+</script>
+<div id="navs" class="navs">
+<li class="nav_bar" onmousemove="setTab(0)">友情链接</li>
+<li onmousemove="setTab(1)">地区分站</li>
+</div>
+<div id="main" class="conmain">
+
+<php>
+
+    $links = getLinls();
+    //var_dump($res);
+</php>
+
+<div class="main_bar">
+<volist name="links" id="link">
+        <a style=" color:#000;text-decoration:none;" href="{$link.url}" target="_blank" title="{$link.name}">{$link.name}</a>
+</volist>
+</div>
+
+<php>
+
+    $slide_info = \think\Db::name("option")->where(["option_name"=>"slide_info"])->value("option_value");
+    $slide_info = json_decode($slide_info,true);
+    $pc_slide = $slide_info["pc_slide"];
+
+</php>
+
+<div>
+
+<!-- 城市分站调用 -->
+<volist name="cities" id="c"  offset="0" length="15">
+<a href="/c-{$c.pinyin}.html" target="_blank" title="{$c.name}">{$c.name}</a>
+</volist>
+
+</div>
+</div>
+<div class="clear"></div>
+</div>
+</div>
+<include file="footer"/>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>首页</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/admin.js"></script>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+
+        <div class="layui-col-sm6 layui-col-md3">
+
+            <div class="layui-card">
+
+                <div class="layui-card-header">
+
+                    熊掌号曝光量
+
+                </div>
+
+                <div class="layui-card-body layuiadmin-card-list">
+
+                    <p class="layuiadmin-big-font">0</p>
+
+                    <p>
+
+                        本周曝光量
+
+                        <span class="layuiadmin-span-color">0 <i class="layui-inline layui-icon layui-icon-flag"></i></span>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="layui-col-sm6 layui-col-md3">
+
+            <div class="layui-card">
+
+                <div class="layui-card-header">
+
+                    官网曝光量
+
+                </div>
+
+                <div class="layui-card-body layuiadmin-card-list">
+
+                    <p class="layuiadmin-big-font">0</p>
+
+                    <p>
+
+                        本周曝光量
+
+                        <span class="layuiadmin-span-color">10% <i class="layui-inline layui-icon layui-icon-website"></i></span>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="layui-col-sm6 layui-col-md3">
+
+            <div class="layui-card">
+
+                <div class="layui-card-header">
+
+                    视频曝光量
+
+                </div>
+
+                <div class="layui-card-body layuiadmin-card-list">
+
+
+
+                    <p class="layuiadmin-big-font">0</p>
+
+                    <p>
+
+                        本周曝光量
+
+                        <span class="layuiadmin-span-color">*** <i class="layui-inline layui-icon layui-icon-video"></i></span>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">新闻曝光量</div>
+                <div class="layui-card-body layuiadmin-card-list">
+                    <p class="layuiadmin-big-font">0</p>
+                    <p>
+                        本周曝光量
+                        <span class="layuiadmin-span-color">15% <i class="layui-inline layui-icon layui-icon-release"></i></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!--第三列-->
+
+        <div class="layui-col-sm12">
+
+            <div class="layui-card">
+
+                <div class="layui-card-header">
+
+                    业务出单量
+
+                    <div class="layui-btn-group layuiadmin-btn-group">
+
+                    </div>
+
+                </div>
+
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="layui-col-sm4">
+                            <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                                <div class="layui-form-item">
+                                    <div class="layui-inline">
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="time" class="layui-input" id="time" placeholder="请选择时间范围">
+                                        </div>
+                                    </div>
+                                    <div class="layui-inline search">
+                                        <button class="layui-btn" data-type="reload" type="button">搜索</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <table id="dataTable" lay-filter="dataTable"></table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-sm8">
+
+                            <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-pagetwo">
+
+                                <div carousel-item id="LAY-index-pagetwo">
+
+                                    <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!--第三列-->
+
+        <div class="layui-col-sm12">
+
+            <div class="layui-card">
+
+                <div class="layui-card-header">
+
+                    访问量
+
+                    <div class="layui-btn-group layuiadmin-btn-group">
+
+                    </div>
+
+                </div>
+
+                <div class="layui-card-body">
+
+                    <div class="layui-row">
+                        <div class="layui-col-sm6">
+
+                            <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-pagethree">
+
+                                <div carousel-item id="LAY-index-pagethree">
+
+                                    <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index'], function(){
+        layui.define(function(e) {
+            var a = layui.admin;
+            layui.use(["admin", "carousel"],
+                function() {
+                    var e = layui.$,
+                        a = (layui.admin, layui.carousel),
+                        l = layui.element,
+                        t = layui.device();
+                    e(".layadmin-carousel").each(function() {
+                        var l = e(this);
+                        a.render({
+                            elem: this,
+                            width: "100%",
+                            arrow: "none",
+                            interval: l.data("interval"),
+                            autoplay: l.data("autoplay") === !0,
+                            trigger: t.ios || t.android ? "click": "hover",
+                            anim: l.data("anim")
+                        })
+                    }),
+                        l.render("progress")
+                });
+                layui.use(["laydate"], function () {
+                    var laydate = layui.laydate;
+                    laydate.render({
+                        elem: '#time'
+                        ,range: true
+                    });
+                });
+
+                layui.use(["carousel", "echarts"], function () {
+                    var data = [];
+                    $.ajax({
+                        type: 'post',
+                        data:{id:1},
+                        url: "{:url('Main/tongji')}",
+                        dataType: 'json',
+                        async: false,
+                        success: function (result) {
+                            if (result.code === 0) {
+                                data = result.data;
+                            }
+                        }
+                    });
+                    var e = layui.$,
+                        a = (layui.carousel, layui.echarts),
+                        l = [],
+                        t = [{
+                            tooltip: {
+                                trigger: "axis"
+                            },
+                            calculable: !0,
+                            legend: {
+                                data: ["优站通", "成交额", "网推侠"]
+                            },
+                            xAxis: [{
+                                type: "category",
+                                data: data.label
+                            }],
+                            yAxis: [{
+                                type: "value",
+                                name: "出单量",
+                                axisLabel: {
+                                    formatter: "{value} "
+                                }
+                            },
+                                {
+                                    type: "value",
+                                    name: "成交额",
+                                    axisLabel: {
+                                        formatter: "{value} "
+                                    }
+                                }],
+                            series: [{
+                                name: "优站通",
+                                type: "line",
+                                data: data.yzt
+                            },
+                                {
+                                    name: "成交额",
+                                    type: "line",
+                                    yAxisIndex: 1,
+                                    data: data.sum
+                                },
+                                {
+                                    name: "网推侠",
+                                    type: "line",
+                                    data: data.wtx
+                                }]
+                        }],
+                        i = e("#LAY-index-pagetwo").children("div"),
+                        n = function (e) {
+                            l[e] = a.init(i[e], layui.echartsTheme),
+                                l[e].setOption(t[e]),
+                                window.onresize = l[e].resize
+                        };
+                    i[0] && n(0)
+                }),
+                layui.use(["carousel", "echarts",'table'],
+                    function() {
+                        var data = [];
+                        var max = 200;
+                        $.ajax({
+                            type: 'post',
+                            data:{id:1},
+                            url: "{:url('Main/area_tongji')}",
+                            dataType: 'json',
+                            async: false,
+                            success: function (result) {
+                                if (result.code === 0) {
+                                    data = result.data;
+                                    max = result.max;
+                                }
+                            }
+                        });
+                        var e = layui.$,
+                            a = (layui.carousel, layui.echarts),
+                            l = [],
+                            t = [{
+                                title: {
+                                    text: "全国用户分布情况",
+                                    subtext: "不完全统计"
+                                },
+                                tooltip: {
+                                    trigger: "item"
+                                },
+                                dataRange: {
+                                    orient: "horizontal",
+                                    min: 0,
+                                    max: max,
+                                    text: ["高", "低"],
+                                    splitNumber: 0
+                                },
+                                series: [{
+                                    name: "全国用户分布情况",
+                                    type: "map",
+                                    mapType: "china",
+                                    selectedMode: "multiple",
+                                    itemStyle: {
+                                        normal: {
+                                            label: {
+                                                show: !0
+                                            }
+                                        },
+                                        emphasis: {
+                                            label: {
+                                                show: !0
+                                            }
+                                        }
+                                    },
+                                    data: data
+                                }]
+                            }],
+                            i = e("#LAY-index-pagethree").children("div"),
+                            n = function(e) {
+                                l[e] = a.init(i[e], layui.echartsTheme),
+                                    l[e].setOption(t[e]),
+                                    window.onresize = l[e].resize
+                            };
+                        i[0] && n(0)
+                    }),
+
+                layui.use("table",
+                    function() {
+                        var e = (layui.$, layui.table);
+                        e.render({
+                            elem: '#dataTable'
+                            ,url: "{:url('Main/business_data')}" //数据接口
+                            ,page: true //开启分页
+                            ,response: {
+                                statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+                            }
+                            ,size: 'sm'
+                            ,page: {
+                                limit: 5,
+                                limits:[5,10,15]
+                            }
+                            ,cols: [[ //表头
+                                {field: 'name', title: '业务名称'}
+                                ,{field: 'value', title: '出单数量', sort: true}
+                                ,{field: 'money', title: '出单金额', sort: true}
+                            ]],
+
+                        });
+                        var $ = layui.$, active = {
+                            reload: function(){
+                                var time = $('#time');
+                                //执行重载
+                                e.reload('dataTable', {
+                                    where: {
+                                        time: time.val(),
+                                    }
+                                });
+                            }
+                        };
+                        $('.search .layui-btn').on('click', function(){
+                            var type = $(this).data('type');
+                            active[type] ? active[type].call(this) : '';
+                        });
+                    });
+                e("sample", {});
+        });
+    });
+</script>
+</body>
+</html>

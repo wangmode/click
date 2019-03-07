@@ -1,0 +1,75 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <php>
+        $pagetitle = parse_diqu($page['post_title']);
+        $keywords = parse_diqu($page['post_keywords']);
+        $description = parse_diqu($page['post_excerpt']);
+    </php>
+    <title>{$city.name}{$pagetitle}_{$siteInfo.company|default=''}</title>
+    <meta name="keywords" content="{$keywords|default=''}"/>
+    <meta name="description" content="{$description|default=''}" />
+
+
+<link type="text/css" rel="stylesheet" href="__TMPL__/public/assets/css/style.css">
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/jquery-1.7.2.min.js"></script>
+
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/base.js"></script>
+<style>
+  pre{ white-space: pre-wrap;white-space: -moz-pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;}
+</style>
+
+<script type="text/javascript">
+    //全局变量
+    var GV = {
+        ROOT: "__ROOT__/",
+        WEB_ROOT: "__WEB_ROOT__/",
+        JS_ROOT: "static/js/"
+    };
+</script>
+<script type="text/javascript">
+    $(function() {
+        var url = 'portal/stat/index/type/para.html';
+        $.getScript(url);
+    });
+</script>
+<hook name="before_head_end"/>
+
+</head>
+<body>
+
+<include file="head"/>
+
+<div class="box pt10">
+<div class="sright fr">
+
+<php>
+    $position=getPosition($page['category_id']);
+    $category=getCategory($page['category_id']);
+</php>
+
+<div class="cur-position">当前位置：<a href="{$domain}/" title="首页">首页</a> 
+
+<volist name="position" id="post">
+> <a href="{$post.href}">{$city.name}{$post.name}</a>
+</volist>
+
+</div>
+<div class="xx-box">
+<h1>{$page.post_title|default=''}</h1>
+<span> 
+{$page.post_content|default=''}
+</span>
+<div>
+<br />
+</div>
+<br /></div>
+</div>
+
+<include file="left_sider"/>
+
+<include file="city2"/>
+<include file="footer"/>

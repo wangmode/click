@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>栏目管理</title>
+    <link rel="stylesheet" href="__TMPL__/public/portal/assets/layui/css/layui.css">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <link id="layuicss-layer" rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all">
+    <script src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+    <script src="__TMPL__/public/static/admin/layuiadmin/layui/index.js"></script>
+    <script src="__TMPL__/public/static/admin/layuiadmin/layui/admin.js"></script>
+</head>
+<body>
+    <div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header layuiadmin-card-header-auto">
+            <div class="layadmin-layer-demo">
+                <button class="layui-btn" id="listOrder">排序</button>
+                <button class="layui-btn" onclick="window_open('添加内容','{:url(\'AdminCategory/add\')}','1000','500')" >添 加</button>
+            </div>
+        </div>
+        <div class="layui-card-body">
+             <table id="auth-table" class="layui-table" lay-filter="auth-table"></table>
+            <script type="text/html" id="options">
+                <div class="layui-btn-group">
+                 {{#  if(d.status==1){ }}
+                 <a  class="layui-btn layui-btn-normal layui-btn-sm" lay-event="show">显示</a>
+                 {{#  } else { }}
+                 <a  class="layui-btn layui-btn-danger layui-btn-sm" lay-event="hide">隐藏</a>
+                 {{#  } }}
+                 
+                 
+                    {{#  if(d.post_type!=2){ }}
+                    <a  class="layui-btn layui-btn-normal layui-btn-sm" lay-event="add">添加子栏目</a>
+                    {{#  } else { }}
+                    <a  class="layui-btn layui-btn-normal layui-btn-sm" lay-event="editpage">编辑栏目页</a>
+                    {{#  } }}
+                    <a  class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+                    {{#
+
+
+                    if(d.id>52){ }}
+                    <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+                    {{#  } else { }}
+                    <button class="layui-btn layui-btn-disabled layui-btn-sm" type="button">删除</button>
+
+                    {{#  } }}
+                </div>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script src="__TMPL__/public/portal/assets/layui/layui.js"></script>
+<script>
+
+ layui.use(['layer','table','form'],function () {
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+                        //监听工具条
+            table.on('tool(auth-table)', function(obj){ //注：tool是工具条事件名，dataTable是table原始容器的属性 lay-filter="对应的值"
+                var data = obj.data //获得当前行数据
+                    ,layEvent = obj.event; //获得 lay-event 对应的值
+                if(layEvent === 'del'){
+                    layer.confirm('确认删除吗？', function(index){
+//                        layer.msg(data.id);
+                        $.post("{:url('AdminCategory/delete')}",{_method:'delete',id:data.id},function (result) {
+                            // layer.msg(result.msg);
+                            if (result.code==0){
+                                obj.del(); //删除对应行（tr）的DOM结构
+                            }
+                            layer.close(index);
+                            layer.msg(result.msg)
+                        });
+                    });
+                } else if(layEvent === 'edit'){
+                    console.log("{:url('AdminCategory/edit',['id'=>"+data.id+"])}");
+                    // location.href = "{:url('AdminCategory/edit')}?id="+data.id;
+                    window_open('编辑','{:url(\'AdminCategory/edit\')}?id='+data.id,'1000','500');
+                }
+                else if(layEvent === 'add'){
+                    window_open('添加子栏目','{:url(\'AdminCategory/add\')}?parent='+data.id,'1000','500');
+//                    location.href = "{:url('AdminCategory/add')}?parent="+data.id;
+                }else if(layEvent === 'editpage'){
+                    window_open('编辑内容页','{:url(\'AdminPage/edit\')}?parent='+data.id,'1000','500');
+//                    location.href = "{:url('AdminCategory/add')}?parent="+data.id;
+                }else if(layEvent === 'show'){
+                   //layer.msg("cs");
+                   $.post("{:url('AdminCategory/displayOrHidden')}",{_method:'delete',id:data.id,status:0},function (result) {
+                            // layer.msg(result.msg);
+                            if (result.code==0){
+                               layer.msg(result.msg);
+                              table.reload();
+                            }
+                           
+                            
+                        });
+                   
+                }else if(layEvent === 'hide'){
+                    
+                   $.post("{:url('AdminCategory/displayOrHidden')}",{_method:'delete',id:data.id,status:1},function (result) {
+                            if (result.code==0){
+                               layer.msg(result.msg);
+                              
+                            }
+                     		
+                         
+                        });
+                }
+            });
+})
+
+
+    layui.config({
+        base: '__TMPL__/public/portal/module/'
+    }).extend({
+        treetable: 'treetable-lay/treetable'
+    }).use(['table', 'treetable'], function () {
+     
+        var $ = layui.jquery;
+        var table = layui.table;
+        var treetable = layui.treetable;
+
+        // 渲染表格
+        // layer.load(2);
+
+        treetable.render({
+            treeColIndex: 0,
+            treeSpid: 0,
+            treeIdName: 'id',
+            treePidName: 'parent_id',
+            elem: '#auth-table',
+            url: '{:url("AdminCategory/data")}',
+            page: false,
+            cols: [[
+                {field: 'name',  title: '栏目名称'}
+                ,{field: 'list_order',edit:'text', align:'center',title: '排序'} //其它参数在此省略
+                ,{fixed: 'right',  align:'center',title: '操作', toolbar: '#options'}
+            ]],
+            done: function () {
+                layer.closeAll('loading');
+            }
+        });
+
+        //按钮批量删除
+        $("#listOrder").click(function () {
+            console.log(table.cache['auth-table']);
+            tabledata = table.cache['auth-table'];
+            list_orders=[];
+            $.each(tabledata,function (index,element) {
+                list_orders[element.id]=element.list_order;
+
+                   console.log([element.id,element.list_order]);
+                })
+
+            $.post("{:url('AdminCategory/listOrder')}",{_method:'delete',list_orders:list_orders},function (result) {
+                console.log(result);
+                if (result.code==0){
+                    location.href = "{:url('AdminCategory/index')}";
+                        }
+            });
+//
+        })
+
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#auth-table');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#auth-table');
+        });
+
+        $('#btn-search').click(function () {
+            var keyword = $('#edt-search').val();
+            var searchCount = 0;
+            $('#auth-table').next('.treeTable').find('.layui-table-body tbody tr td').each(function () {
+                $(this).css('background-color', 'transparent');
+                var text = $(this).text();
+                if (keyword != '' && text.indexOf(keyword) >= 0) {
+                    $(this).css('background-color', 'rgba(250,230,160,0.5)');
+                    if (searchCount == 0) {
+                        treetable.expandAll('#auth-table');
+                        $('html,body').stop(true);
+                        $('html,body').animate({scrollTop: $(this).offset().top - 150}, 500);
+                    }
+                    searchCount++;
+                }
+            });
+            if (keyword == '') {
+                layer.msg("请输入搜索内容", {icon: 5});
+            } else if (searchCount == 0) {
+                layer.msg("没有匹配结果", {icon: 5});
+            }
+        });
+    });
+</script>
+</body>
+</html>

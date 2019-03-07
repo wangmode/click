@@ -1,0 +1,162 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<php>
+    $articletitle = parse_diqu($article['post_title']);
+</php>
+<title>{$city.name}{$articletitle}_{$siteInfo.company|default=''}</title>
+
+<meta name="keywords" content="{$article.post_keywords|default=''}"/>
+<meta name="description" content="{$article.post_excerpt|default=''}" />
+
+<link type="text/css" rel="stylesheet" href="__TMPL__/public/assets/css/style.css">
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/jquery-1.7.2.min.js"></script>
+
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/base.js"></script>
+<hook name="before_head_end"/>
+</head>
+<body>
+
+<include file="head"/>
+
+<div class="box pt10">
+<div class="sright fr">
+
+<php>
+    $before_content_hook_param=[
+    'object_id'=>$article['id'],
+    'table_name'=>'portal_post',
+    'object_title'=>$article['post_title'],
+    'user_id'=>$article['user_id'],
+    'url'=>cmf_url_encode('portal/Article/index',array('id'=>$article['id'],'cid'=>$category['id'])),
+    'object'=>$article,
+    '$category'=>$category
+
+    ];
+
+
+</php>
+<php>
+    $position=getPosition($category['id'])
+</php>
+
+<div class="cur-position">当前位置：<a href="{$domain}/">首页</a>
+<volist name="position" id="post">
+> <a href="{$post.href}" title="{$city.name}{$post.name}">{$city.name}{$post.name}</a>
+</volist>
+</div>
+<div class="xx-box">
+
+
+<div class="ak">
+<div class="w-ls">
+<div class="bd">
+<ul id="ls">
+
+<li><img src="{:get_img_url($article.thumbnail,2,422,322)}" border="0" alt="" /></li>
+
+</ul>
+</div>
+</div>
+<div class="info">
+<div class="title"><h1>{$city.name}{$article.post_title}</h1></div>
+<div class="descr">
+<span>
+{$city.name}{$article.post_excerpt|getSubstr=0,200}
+</span>
+</div>
+<div class="pc">
+<div class="dg">
+<div class="dgrx">订购<br />热线</div>
+<div class="tels">
+<p>{$site_info.phone}</p>
+</div>
+</div>
+<center><a class="sbt1" href="http://wpa.qq.com/msgrd?v=3&uin={$site_info.qq}&site=qq&menu=yes" rel="notfollow" target="_blank">立即咨询</a></center>
+<div class="clear"></div>
+</div>
+</div>
+<div class="clear"></div>
+</div>
+<div class="allt">
+<li class="cur">产品概述</li>
+<div class="clear"></div>
+</div>
+<div class="xiangxi">
+<p>
+<span style="font-size:14px;">
+{$article.post_content}
+</span>
+</p>
+</div>
+
+
+<div class="clear"></div>
+
+<!--分割线-->
+
+<div class="near-page">
+  <empty name="prev_article">
+    <div>上一篇：<span>无</span> </div>
+    <else/>
+    <div>上一篇：<a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$prev_article.id,'cid'=>$category['id']))}" title="{$prev_article.post_title}">{$prev_article.post_title}</a> </div>
+  </empty>
+
+  
+   <empty name="next_article">
+    <div>下一篇：<span>无</span> </div>
+    <else/>
+   <div>下一篇：<a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$next_article.id,'cid'=>$category['id']))}" title="{$next_article.post_title}">{$next_article.post_title}</a></div> 
+  </empty>
+
+
+
+</div>
+<div class="otherp mt30">
+<div class="otherp-head tj-title">相关产品</div>
+
+<php>
+
+    $newsList = getRandProducts(4);
+
+</php>
+
+<ul>
+<volist name="newsList" id="news">
+<li>
+<a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$news['id'],'cid'=>$news['category_id']))}" title="{$city.name}{$news.post_title}"><img border='0' width='220' height='240' src="{:get_img_url($news.thumbnail,2,220,169)}" alt=""></a>
+<a class="yyhh" href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$news['id'],'cid'=>$news['category_id']))}" title="{$city.name}{$news.post_title}">{$city.name}{$news.post_title}</a>
+</li>
+ </volist>
+
+<div class="clear"></div>
+</ul>
+</div>
+<div class="otherp mt10 tjnews">
+<div class="otherp-head tj-title">相关资讯</div>
+
+<php>
+
+    $newsList = getRandArticles(5);
+
+</php>
+
+<ul>
+<volist name="newsList" id="news">
+<li><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$news['id'],'cid'=>$news['category_id']))}" title="{$city.name}{$news.post_title}">+ {$city.name}{$news.post_title}</a><span>[{:date('Y-m-d H:i',$news.published_time)}]</span></li>
+ </volist>
+
+<div class="clear"></div>
+</ul>
+</div>
+</div>
+</div>
+
+<include file="left_sider"/>
+
+<include file="city2"/>
+
+<include file="footer"/>

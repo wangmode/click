@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{$city.name}{$category.name}_{$siteInfo.company|default=''}</title>
+<meta name="keywords" content="{$siteInfo.keywords|default=''}"/>
+<meta name="description" content="{$siteInfo.description|default=''}" />
+
+<link type="text/css" rel="stylesheet" href="__TMPL__/public/assets/css/style.css">
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/jquery-1.7.2.min.js"></script>
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/base.js"></script>
+<hook name="before_head_end"/>
+</head>
+
+<body>
+<include file="head"/>
+
+<div class="box pt10">
+<div class="sright fr">
+<php>    $position=getPosition($category['id']);</php>
+<div class="cur-position">当前位置：<a href="{$domain}/">首页</a>
+<volist name="position" id="post">    
+> <a href="{$post.href}" title="{$city.name}{$post.name}">{$city.name}{$post.name}</a>
+</volist>
+</div>
+
+<div class="xx-box">
+<ul class="zh">
+
+<php>
+    //var_dump($category);
+    $pageset = 9;
+    $articles = getArticles($category['id'],$pageset);
+  
+    $page = $articles->render();
+    $total= $articles->total();
+    $currentPage = $articles->currentPage();
+    $lastPage = $articles->lastPage();
+  	$baseurl = $domain.'/'.$category['alias'].".html";
+  	$page = getPage($total,$pageset,$currentPage,$baseurl);
+</php>
+
+<volist name="articles" id="vo">
+<dd><li><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}" title="{$city.name}{$vo.post_title}" class="preview"><img src="{:get_img_url($vo.thumbnail,2,303,203)}" alt="{$city.name}{$vo.post_title}" /></a><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$vo['id'],'cid'=>$vo['category_id']))}" title="{$city.name}{$vo.post_title}" class="title"><span>{$city.name}{$vo.post_title}</span></a></li></dd></volist>
+
+</ul>
+<div class="page"><li><div class="pagination">
+    <a href="{$page.prev.url}">上一页</a>
+  <volist name="page.pageList" id="p">
+    <eq name="p.page" value="$currentPage"> <a class="active" href="#">{$p.page}</a><else/> <a href=" {$p.url}">{$p.page}</a></eq> 
+  </volist>
+ <a href="{$page.next.url}">下一页</a>
+ 
+
+</div></li></div>
+</div></div>
+
+<include file="left_sider"/>
+<include file="city2"/>
+<include file="footer"/>

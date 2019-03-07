@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>云外链</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all" id="layuicss-layer">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-card" style="padding-top:20px;padding-left:20px;">
+        <ul class="layui-tab-title">
+            <li class="layui-this"><a href="{:url('Outer/cloud')}">云外链</a></li>
+            <li><a href="{:url('Outer/index')}">外链列表</a></li>
+        </ul>
+        <div class="layui-card-body">
+            <form class="layui-form" action="" lay-filter="component-form-element">
+                <div class="layui-row layui-col-space10 layui-form-item">
+                    <div class="layui-col-lg6">
+                        <label class="layui-form-label">文章标题：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="article" name="title" placeholder="请输入标题！" lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                        <button id="select_article" class="layui-btn layui-btn-primary" type="button">选择文章</button>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-col-lg6">
+                    <label class="layui-form-label">文章内容：</label>
+                    <div class="layui-input-block">
+                        <textarea id="content" name="content" lay-verify="content" style="display: none;"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择媒体</label>
+                    <div class="layui-input-block">
+                        <volist name="outer_website" id="vo">
+                            <input type="checkbox" name="platform[{$vo.pinyin}]" title="{$vo.name}" checked="">
+                        </volist>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="add">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/html" id="check">
+        <input type="radio" name="layTableCheckbox" value="{{d.id}}"  lay-filter="check">
+    </script>
+    <script>
+        layui.config({
+            base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form','layedit','articleSelect'], function(){
+            var $ = layui.$
+                ,form = layui.form;
+            var layedit = layui.layedit;
+            layedit.set({
+                uploadImage: {
+                    url: "{:url('Common/editor_upload',array('type'=>'yun_link'))}"
+                    ,type: 'post'
+                }
+            });
+            var index = layedit.build('content');
+
+
+            tableSelect = layui.articleSelect;
+            tableSelect.render({
+                elem: '#select_article',	//定义输入框input对象
+                searchKey: 'article',	//搜索输入框的name值 默认keyword
+                searchPlaceholder: '文章库',	//搜索输入框的提示文字 默认关键词搜索
+                table: {	//定义表格参数，与LAYUI的TABLE模块一致，只是无需再定义表格elem
+                    url:"{:url('Outer/news_data')}",
+                    cols: [[ //表头
+                        {field:'id', title:'选择',  templet: '#check', unresize: true,width:60},
+                        {field: 'post_title', title: '文章标题'}
+                    ]]
+                },
+                done: function (elem, data) {
+                    var id=[];
+                    var title=[];
+                    var content=[];
+                    $.each(data.data,function(i,n)
+                    {
+                        id=n.id;
+                        title = n.post_title;
+                        content = n.post_content;
+                    });
+                    layedit.setContent(index, content);
+                    $("#article").val(title);
+                }
+            });
+            form.verify({
+                content: function(value) {
+                    return layedit.sync(index);
+                }
+            });
+
+
+
+            form.on('submit(add)', function(data){
+                var content = layedit.getContent(index);
+                if(content==''){
+                    layer.msg('请添加内容！', {icon: 5});
+                    return false;
+                }
+                var load = layer.load();
+                $.ajax({
+                    url:"{:url('Outer/cloud')}",
+                    data:$('form').serializeArray(),
+                    type:'post',
+                    dataType:'json',
+                    success:function(res){
+                        if(res.status != 1){
+                            layer.msg(res.msg, {icon: 5});
+                            layer.close(load);
+                            return false;
+                        }else{
+                            layedit.setContent(index, '');
+                            $("#article").val('');
+                            layer.close(load);
+                            layer.msg(res.msg, {icon: 6});
+                            return false;
+                        }
+                    },
+                    error : function(XMLHttpRequest, textStatus, errorThrown) {
+                        layer.close(load);
+                        layer.msg('网络错误！', {icon: 5});
+                        return false;
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+</div>
+</body>
+</html>
+
+
+

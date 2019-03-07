@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文章管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all" id="layuicss-layer">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+     <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/lay/modules/util.js"></script>
+     <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/admin.js"></script>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form" >
+            <div class="layui-input-inline">
+                <input type="text" name="title" id="keyword" value="{$keyword|default=''}" placeholder="请输入文章标题" class="layui-input">
+            </div>
+            <button class="layui-btn layui-btn" id="searchBtn">搜 索</button>
+        </div>
+        <div style="margin-top: 10px">
+            <button class="layui-btn  layuiadmin-btn-list layui-btn-danger" id="listDelete">删 除</button>
+            <button class="layui-btn  layuiadmin-btn-list " onclick="window_open('添加内容','{:url(\'AdminArticle/add\')}','1000','500')"  >添 加</button>
+            <!--<button class="layui-btn  layuiadmin-btn-list " id="fb">发布</button>-->
+            <!--<button class="layui-btn  layuiadmin-btn-list " id="qxfb">取消发布</button>-->
+        </div>
+        </div>
+        <div class="layui-card-body">
+            <table id="dataTable" lay-filter="dataTable"></table>
+         <script type="text/html" id="update_time">
+               
+                 {{ time2date(d.update_time) }}
+            </script>
+             <script type="text/html" id="published_time">
+
+                 {{ time2date(d.published_time) }}
+            </script>
+
+            <script type="text/html" id="post_status">
+                {{#  if(d.parent_id == 0){ }}
+                <a class="layui-btn layui-btn-sm layui-btn-warm">已发布</a>
+                {{#  } else { }}
+                <a class="layui-btn layui-btn-sm layui-btn-normal">未发布</a>
+                {{#  } }}
+
+
+                 <!--{{#  if(d.is_top == 1){ }}-->
+                <!--<a class="layui-btn layui-btn-sm layui-btn-warm">已置顶</a>-->
+                <!--{{#  } else { }}-->
+                <!--<a class="layui-btn layui-btn-sm layui-btn-normal">未置顶</a>-->
+                <!--{{#  } }}-->
+
+                 <!--{{#  if(d.recommended == 1){ }}-->
+                <!--<a class="layui-btn layui-btn-sm layui-btn-warm">已推荐</a>-->
+                <!--{{#  } else { }}-->
+                <!--<a class="layui-btn layui-btn-sm layui-btn-normal">未推荐</a>-->
+                <!--{{#  } }}-->
+            </script>
+           
+
+            <script type="text/html" id="options">
+                <div class="layui-btn-group">
+                    <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+                </div>
+            </script>
+
+
+        </div>
+    </div>
+    <script>
+        layui.use(['layer','table','form'],function () {
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+            //用户表格初始化
+            var dataTable = table.render({
+                elem: '#dataTable'
+                ,url: "{:url('AdminArticle/data')}" //数据接口
+                ,page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                          layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                          //,curr: 5 //设定初始在第 5 页
+                          ,limit:10 //一页显示多少条
+                          ,limits:[5,10,15]//每页条数的选择项
+                          ,groups: 2 //只显示 2 个连续页码
+                          ,first: "首页" //不显示首页
+                          ,last: "尾页" //不显示尾页
+                          
+                        } //开启分页
+                ,response: {
+                    statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+                }
+                ,cols: [[ //表头
+                    {checkbox: true,fixed: true}
+//                    ,{field: 'id', title: 'ID', sort: true,width:80}
+                    ,{field: 'post_title', title: '标题'}
+                    ,{field: 'category', title: '栏目'}
+                    ,{field: 'comment_count', title: '点击量'}
+//                    ,{field: 'update_time', title: '更新时间', width: 160, sort: false,fixed:false,templet: '#update_time'}
+                    ,{field: 'published_time', title: '发布时间', width: 300, sort: false,fixed:false,templet: '#published_time'}
+//                    ,{field: 'post_status', title: '状态', width: 100, sort: false,fixed:false,templet: '#post_status'}
+                    ,{fixed: 'right', minWidth: 120, align:'center', toolbar: '#options'}
+                ]]
+            });
+
+            //监听工具条
+            table.on('tool(dataTable)', function(obj){ //注：tool是工具条事件名，dataTable是table原始容器的属性 lay-filter="对应的值"
+                var data = obj.data //获得当前行数据
+                    ,layEvent = obj.event; //获得 lay-event 对应的值
+                if(layEvent === 'del'){
+                    layer.confirm('确认删除吗？', function(index){
+//                        layer.msg(data.id);
+                        $.post("{:url('AdminArticle/delete')}",{_method:'delete',ids:[data.id]},function (result) {
+                            if (result.code==0){
+                               layer.msg(result.msg);
+                         	   dataTable.reload();
+                                //obj.del(); //删除对应行（tr）的DOM结构
+                            }
+                            layer.close(index);
+                            layer.msg(result.msg)
+                        });
+                    });
+                } else if(layEvent === 'edit'){
+                    console.log("{:url('AdminArticle/edit',['id'=>"+data.id+"])}");
+                    // location.href = "{:url('AdminArticle/edit')}?id="+data.id;
+                     window_open('添加内容','{:url(\'AdminArticle/edit\')}?id='+data.id,'1000','500');
+                }
+
+            });
+
+
+            //监听是否显示
+            form.on('switch(isShow)', function(obj){
+                var index = layer.load();
+                var url = $(obj.elem).attr('url')
+                var data = {
+                    "is_show" : obj.elem.checked==true?1:0,
+                    "_method" : "put"
+                }
+                $.post(url,data,function (res) {
+                    layer.close(index)
+                    layer.msg(res.msg)
+                },'json');
+            });
+
+            //按钮批量删除
+            $("#listDelete").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认删除吗？', function(index){
+                        $.post("{:url('AdminArticle/delete')}",{_method:'delete',ids:ids},function (result) {
+                            if (result.code==0){
+
+                                dataTable.reload()
+                            }
+                            layer.close(index);
+                            layer.msg(result);
+                            layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择删除项')
+                }
+            })
+
+
+            //按钮批量发布
+            $("#fb").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认发布吗？', function(index){
+                        $.post(
+                            "{:url('AdminArticle/publish',array('yes'=>1))}",
+                             {_method:'delete',ids:ids},
+                            function (result) {
+                                // alert(123);
+                                if (result.code==0){
+
+                                    dataTable.reload()
+                                }
+                                layer.close(index);
+                                layer.msg(result);
+                                layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择发布项')
+                }
+            })
+
+             //按钮批量发布
+            $("#qxfb").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认取消发布吗？', function(index){
+                        $.post(
+                            "{:url('AdminArticle/publish',array('no'=>1))}",
+                             {_method:'delete',ids:ids},
+                            function (result) {
+                                // alert(123);
+                                if (result.code==0){
+
+                                    dataTable.reload()
+                                }
+                                layer.close(index);
+                                layer.msg(result);
+                                layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择发布项')
+                }
+            })
+
+
+
+             //按钮批量置顶
+            $("#zd").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认置顶吗？', function(index){
+                        $.post(
+                            "{:url('AdminArticle/top',array('yes'=>1))}",
+                             {_method:'delete',ids:ids},
+                            function (result) {
+                                // alert(123);
+                                if (result.code==0){
+
+                                    dataTable.reload()
+                                }
+                                layer.close(index);
+                                layer.msg(result);
+                                layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择发布项')
+                }
+            })
+
+             //按钮批量取消置顶
+            $("#qxzd").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认取消置顶吗？', function(index){
+                        $.post(
+                            "{:url('AdminArticle/top',array('no'=>1))}",
+                             {_method:'delete',ids:ids},
+                            function (result) {
+                                // alert(123);
+                                if (result.code==0){
+
+                                    dataTable.reload()
+                                }
+                                layer.close(index);
+                                layer.msg(result);
+                                layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择发布项')
+                }
+            })
+
+
+             //按钮批量置顶
+            $("#tj").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认推荐吗？', function(index){
+                        $.post(
+                            "{:url('AdminArticle/recommend',array('yes'=>1))}",
+                             {_method:'delete',ids:ids},
+                            function (result) {
+                                // alert(123);
+                                if (result.code==0){
+
+                                    dataTable.reload()
+                                }
+                                layer.close(index);
+                                layer.msg(result);
+                                layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择发布项')
+                }
+            })
+
+             //按钮批量取消置顶
+            $("#qxtj").click(function () {
+                var ids = [];
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认取消推荐吗？', function(index){
+                        $.post(
+                            "{:url('AdminArticle/recommend',array('no'=>1))}",
+                             {_method:'delete',ids:ids},
+                            function (result) {
+                                // alert(123);
+                                if (result.code==0){
+
+                                    dataTable.reload()
+                                }
+                                layer.close(index);
+                                layer.msg(result);
+                                layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择发布项')
+                }
+            })
+
+            //搜索
+            $("#searchBtn").click(function () {
+                var keyword = $("#keyword").val();
+                // var catId = $("#category_id").val()
+                // var title = $("#title").val();
+                dataTable.reload({
+                    url: '{:url("AdminArticle/data")}',
+                    where:{keyword:keyword},
+                    page:{curr:1},
+                    method:'post',
+                    done:function (res) {
+                        userPage.data = res.data;
+                    }
+                })
+            })
+        })
+
+
+
+ function time2date(t){
+            var t1 = parseInt(t + '000');
+            return layui.util.toDateString(t1);
+        }
+ 
+    </script>
+</div>
+
+
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','form',],function () {
+        var element = layui.element;
+        var form = layui.form;
+    });
+</script>
+</body>
+</html>

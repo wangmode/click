@@ -1,0 +1,58 @@
+<php>
+    //$pro_cid = getCid("pro");
+    $pro_cid = 4;
+    $pro_cat = getCategory($pro_cid);
+
+</php>
+
+<div class="sleft fl">
+<div class="about-left">
+<div class="class-title">
+<b>B</b><h2>{$city.name}{$pro_cat.name}</h2><span>PRODUCTS</span>
+</div>
+<ul>
+	<php>
+        $child1 = getChildrenCid($pro_cid);
+    </php>
+<volist name="$child1" id="c1">
+<li>>><a href="{$domain}/{$c1.alias}" title="{$city.name}{$c1.name}">{$city.name}{$c1.name|getSubstr=0,15}</a></li>
+</volist>
+</ul>
+</div>
+<div class="about-left">
+<div class="class-title">
+
+<php>
+
+	$newsList = getRandArticles(10);
+
+</php>
+
+<b>B</b><h2>{$city.name}最新新闻</h2><span>LATEST NEWS</span>
+</div>
+<ul>
+<volist name="newsList" id="news">
+<li>>><a href="{$domain}/{:cmf_url('portal/Article/index',array('id'=>$news['id'],'cid'=>$news['category_id']))}" title="{$city.name}{$news.post_title}">{$city.name}{$news.post_title}</a></li>
+</volist>
+</ul>
+</div>
+<div class="contact-left mt10">
+<div class="class-title">
+<b>B</b><h2>联系我们</h2><span>CONTACT US</span>
+</div>
+<img src="__TMPL__/public/assets/images/contact-top.jpg" alt="" />
+<div class="cinfo">
+
+<ul>
+<span style="font-size:14px;line-height:2;color:#F00;">
+{$siteInfo.company|default=''}
+</span><br />
+<span style="font-size:14px;line-height:2;color:#F00;"> 电话：{$site_info.phone}</span><br />
+<span style="font-size:14px;line-height:2;color:#F00;"> 联系人：{$site_info.linkman}</span><br />
+<span style="font-size:14px;line-height:2;color:#F00;"> Q &nbsp;Q：{$site_info.qq}</span><br />
+<span style="font-size:14px;line-height:2;color:#F00;"> 地址：{$site_info.address}</span><br /></ul>
+</div>
+</div>
+</div>
+<div class="clear"></div>
+</div>

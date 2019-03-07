@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>代理详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <link id="layuicss-layer" rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+</head>
+<body>
+<div class="x-body layui-anim layui-anim-up">
+    <form method="post" class="layui-form">
+        <div class="layui-form-item">
+            <label for="input-name" class="layui-form-label">
+                <span class="x-red">{:lang('ROLE_NAME')}</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="input-name" name="name" required="" lay-verify="required" value="{$data.name}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="input-remark" class="layui-form-label">
+                <span class="x-red">{:lang('ROLE_DESCRIPTION')}</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="input-remark" name="remark" required="" lay-verify="required" value="{$data.remark}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">{:lang('STATUS')}</label>
+            <div class="layui-input-block">
+                <php>$active_true_checked=($data['status']==1)?"checked":"";</php>
+                <input type="radio" name="status" value="1" {$active_true_checked} title="{:lang('ENABLED')}">
+                <php>$active_false_checked=($data['status']==0)?"checked":"";</php>
+                <input type="radio" name="status" value="0" {$active_false_checked} title="{:lang('DISABLED')}">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <input type="hidden" name="id"  value="{$data.id}">
+            <button  class="layui-btn" lay-filter="update" lay-submit="">更新</button>
+        </div>
+    </form>
+</div>
+<style>
+    html{background-color: #fff;color: black;margin-top: 20px;}
+</style>
+<script type="text/html" id="check">
+    <input type="radio" name="layTableCheckbox" value="{{d.id}}"  lay-filter="check">
+</script>
+<script>
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+        form.on('submit(update)', function(data){
+            $.ajax({
+                url:"{:url('rbac/roleeditpost')}",
+                data:data.field,
+                type:'post',
+                dataType:'json',
+                success:function(res){
+                    if(res.code !== 1){
+                        layer.msg(res.msg, {icon: 5});
+                        return false;
+                    }else{
+                        layer.alert(res.msg, {icon: 6},function () {
+                            // 获得frame索引
+                            var index = parent.layer.getFrameIndex(window.name);
+                            //关闭当前frame
+                            parent.layer.close(index);
+                            window.parent.location.reload();
+                        });
+                        return false;
+                    }
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown) {
+                    layer.msg('网络错误！');
+                    return false;
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

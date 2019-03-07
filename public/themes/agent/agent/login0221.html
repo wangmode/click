@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>登录</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__TMPL__/public/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/layui/css/login.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/style/admin.css" media="all">
+  <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+  <script type="text/javascript" src="__TMPL__/public/layui/layui.js"></script>
+  <script type="text/javascript" src="__TMPL__/public/layui/admin.js"></script>
+</head>
+<body layadmin-themealias="default">
+  <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login">
+    <div class="layadmin-user-login-main">
+      <div class="layadmin-user-login-box layadmin-user-login-header">
+        <h2>代理提单系统</h2>
+      </div>
+      <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
+          <input type="text" name="username" id="LAY-user-login-username" lay-verify="required" placeholder="用户名" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+          <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="密码" class="layui-input">
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-row">
+            <div class="layui-col-xs7">
+              <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
+              <input type="text" name="captcha" id="LAY-user-login-vercode" lay-verify="required" placeholder="图形验证码" class="layui-input">
+            </div>
+            <div class="layui-col-xs5">
+              <div style="margin-left: 10px;">
+                  <captcha height="38" width="130" font-size="20"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="layui-form-item" style="margin-bottom: 20px;">
+        </div>
+        <div class="layui-form-item">
+          <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="user-login-submit">登 入</button>
+        </div>
+        <div class="layui-trans layui-form-item layadmin-user-login-other">
+        </div>
+      </div>
+    </div>
+    
+    <div class="layui-trans layadmin-user-login-footer">
+      <p>© 2018 <a href="http://www.youzhantong.vip/" target="_blank">youzhantong.vip</a></p>
+    </div>
+  </div>
+  <script>
+      layui.config({
+          base: '__TMPL__/public/', //静态资源所在路径
+      }).extend({
+          index: 'lib/index' //主入口模块
+      }).use(['index'], function(){
+          var $ = layui.$
+              ,form = layui.form;
+               form.render();
+          $("document").ready(function(){
+              //防止在frame里面出现登录页面
+              if(top.location!==self.location){
+                  layer.msg('登录失效', {icon: 5,time: 1000},function () {
+                      top.location.href = self.location.href;
+                  });
+              }
+          });
+          //提交
+          form.on('submit(user-login-submit)', function(obj){
+              $.ajax({
+                  url:"{:url('login/doLogin')}",
+                  data:obj.field,
+                  type:'post',
+                  dataType:'json',
+                  success:function(res){
+                      $(".captcha-img").trigger('click');
+                      if(res.status !== 1){
+                          layer.msg(res.msg, {icon: 5});
+                          return false;
+                      }else{
+                          layer.msg(res.msg, {icon: 6},function () {
+                              window.location.reload();
+                          });
+                          return false;
+                      }
+                  },
+                  error : function(XMLHttpRequest, textStatus, errorThrown) {
+                      $(".captcha-img").trigger('click');
+                      layer.msg('网络错误！');
+                      return false;
+                  }
+              });
+          });
+      });
+  </script>
+
+</body></html>

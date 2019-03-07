@@ -1,0 +1,68 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>城市站群</title>
+<meta name="keywords" content="{$siteInfo.keywords|default=''}"/>
+<meta name="description" content="{$siteInfo.description|default=''}" />
+
+
+<link type="text/css" rel="stylesheet" href="__TMPL__/public/assets/css/style.css">
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/jquery-1.7.2.min.js"></script>
+
+<script language="JavaScript" type="text/javascript" src="__TMPL__/public/assets/js/base.js"></script>
+
+<script type="text/javascript">
+    //全局变量
+    var GV = {
+        ROOT: "__ROOT__/",
+        WEB_ROOT: "__WEB_ROOT__/",
+        JS_ROOT: "static/js/"
+    };
+</script>
+<script type="text/javascript">
+    $(function() {
+        var url = 'portal/stat/index/type/para.html';
+        $.getScript(url);
+    });
+</script>
+<hook name="before_head_end"/>
+
+</head>
+<body>
+
+<include file="head"/>
+
+<!-- 获取跟连接 -->
+
+<link href="__TMPL__/public/assets/css/city.css" rel="stylesheet" type="text/css" />
+<div class="box pt10">
+<div class="sright fr">
+<div class="cur-position">当前位置：<a href="{$domain}/">首页</a>
+><a href="{$domain}/city.html">城市站群</a>
+</div>
+<div class="xx-box">
+<h1>城市销售网络</h1>
+<div style="text-align:center;">
+<div id="container">
+        <div class="hot">
+            <ul class="clearfix">     
+
+              <volist name="cities" id="c">                                          
+                <li><a href="/c-{$c.pinyin}.html" target="_blank">{$c.name}</a>
+                </li>
+              </volist>                             
+                                            
+            </ul>
+        </div>
+        
+    </div>
+</div>
+</div>
+</div>
+
+<include file="left_sider"/>
+
+<include file="footer"/>

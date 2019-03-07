@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>熊掌号设置</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link id="layuicss-layer" rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/step.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+</head>
+<style>
+    .img-button{float:left;margin-top: 10px;margin-right: 10px}
+    .img-div{display: inline-block;float: left}
+    .img-div img{height:39px; cursor: pointer}
+    .new-tips{margin-left: 10px;cursor: pointer;color: #3595CC;font-size: 18px}
+    .tips-input{width: 90%;display: inline-block}
+</style>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-tab" style="padding-top:20px;padding-left:20px;">
+                    <ul class="layui-tab-title">
+                        <li><a href="{:url('Setting/xzh_interface')}">内容同步</a></li>
+                        <li class="layui-this">熊掌号设置</li>
+                        <li><a href="{:url('Setting/xzh_login')}">熊掌号运营</a></li>
+                        <li><a href="{:url('Manual/xzh_course')}">熊掌号闯关</a></li>
+                    </ul>
+                    <div class="layui-step" id="step">
+                        <div class="layui-step-title layui-clear">
+                            <div class="layui-step-title-item step-first <eq name="status" value="0">step-current</eq>" style="width: 25%;">
+                            <div class="step-icon"><i>1</i></div><div class="step-text">提交资料</div>
+                            <div class="step-description"></div>
+                        </div>
+                        <div class="layui-step-title-item <eq name="status" value="1">step-current</eq>" style="width: 25%;">
+                        <div class="step-icon"><i>2</i></div>
+                        <div class="step-text">审核中</div>
+                        <div class="step-description"></div>
+                    </div>
+                    <div class="layui-step-title-item step-last <eq name="status" value="2">step-current</eq>" style="width: 25%;">
+                    <div class="step-icon"><i>3</i></div>
+
+                    <div class="step-text">审核通过</div>
+                    <div class="step-description"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body" pad15="">
+            <style>
+                .sp-status{
+                    width: 76%;
+                    height: 100px;
+                    padding: 1%;
+
+                    color: red;
+                    text-align: center;
+
+                    line-height:2em;
+                    font-size: 1.5em;
+                }
+            </style>
+                <switch name="status">
+                    <case value="1">
+                        <div class="sp-status" >
+                            百度审核大概2-5个工作日，正在审核中···
+                        </div>
+                    </case>
+                    <case value="2">
+                        <div class="sp-status" >
+                            恭喜您已经审核通过!
+                            <!--、对不起，您的熊掌号审核没有通过，原因为“熊掌号昵称不规范”影响通过因素，<a href="#">返回修改</a>-->
+                        </div>
+                    </case>
+                </switch>
+
+            <switch name="status">
+                <case value="1|2">
+                    <!--wjc-->
+                    <div class="layui-col-sm13">
+                        <div class="layui-card">
+                            <div class="layui-card-body layui-text">
+                                <table class="layui-table" style="width: 76%;">
+                                    <colgroup>
+                                        <col width="120">
+                                        <col width="120">
+                                        <col width="120">
+                                        <col width="120">
+                                    </colgroup>
+                                    <tbody>
+                                    <tr>
+                                        <td>类型：
+                                        </td>
+                                        <td>
+                                            <if condition="$xzh_info.type eq 1">个人<else/> 企业</if>
+                                        </td>
+
+                                        <td>熊掌号名称：</td>
+                                        <td>
+                                            {$xzh_info.name|default=''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>签名：</td>
+                                        <td>
+                                            {$xzh_info.signature|default=''}
+                                        </td>
+
+                                        <td>地区：</td>
+                                        <td>
+                                            {$xzh_info.location|default=''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>运营者姓名：</td>
+                                        <td>
+                                            {$xzh_info.signature|default=''}
+                                        </td>
+
+                                        <td>运营者身份证：</td>
+                                        <td>
+                                            {$xzh_info.operation_id|default=''}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>手持身份证照：</td>
+                                        <td>
+                                            <img src="{$xzh_info.operation_idcard|default=''}"/>
+                                        </td>
+
+                                        <td>头像：</td>
+                                        <td>
+                                            <img src="{$xzh_info.avatar}" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>授权书：</td>
+                                        <td>
+                                            <img src="{$xzh_info.auth_img|default=''}" />
+                                        </td>
+                                        <td>领域：</td>
+                                        <td>
+                                            <volist name="domain" id="vo">
+                                                <if condition="$vo.id eq $xzh_info.domain">{$vo.name}</if>
+                                            </volist>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!--wjc-->
+                </case>
+                <default>
+                    <form method="post" class="layui-form">
+                        <div class="layui-form" wid100="" lay-filter="">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">类型</label>
+                                <div class="layui-input-block">
+                                    <input type="radio" lay-filter="type" name="xzh[type]" value="1" title="个人" <if condition="$xzh_info.type eq 1">checked=""</if> >
+                                    <input type="radio" lay-filter="type" name="xzh[type]" value="3" title="企业" <if condition="$xzh_info.type eq 3">checked=""</if>>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">熊掌号名称</label>
+                                <div class="layui-input-block" style="width: 50%;">
+                                    <input type="text" name="xzh[name]" value="{$xzh_info.name|default=''}" lay-verify="required" class="layui-input tips-input">
+                                    <i class="layui-icon layui-icon-tips new-tips" lay-tips="请勿使用含有特殊符号、营销推广意图或过于宽泛的名称"></i>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">签名</label>
+                                <div class="layui-input-block" style="width: 50%;">
+                                    <input type="text" name="xzh[signature]" lay-verify="required" value="{$xzh_info.signature|default=''}" class="layui-input tips-input">
+                                    <i class="layui-icon layui-icon-tips new-tips" lay-tips="签名用于描述帐号定位，将显示在熊掌号主页，不允许包含联系方式、营销信息、无语义词句"></i>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">地区</label>
+                                <div class="layui-input-inline" style="width: 45%;">
+                                    <input type="text" name="xzh[location]" lay-verify="required" value="{$xzh_info.location|default=''}" lay-verify="required" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">示例：北京市-北京市</div>
+                            </div>
+
+                            <div id="xz_person" <if condition="$xzh_info.type neq 1">style="display: none"</if>>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">运营者姓名</label>
+                                    <div class="layui-input-block" style="width: 50%;">
+                                        <input type="text" name="xzh[operation_name]" value="{$xzh_info.operation_name|default=''}" class="layui-input tips-input">
+                                        <i class="layui-icon layui-icon-tips new-tips" lay-tips="请与身份证姓名保持一致，如果姓名包含分隔符“·”请完整填写"></i>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">运营者身份证</label>
+                                    <div class="layui-input-block" style="width: 50%;">
+                                        <input type="text" name="xzh[operation_id]" value="{$xzh_info.operation_id|default=''}" class="layui-input tips-input">
+                                        <i class="layui-icon layui-icon-tips tip-operation-id new-tips" lay-tips="身份证号与运营者姓名保持一致，一个身份证号仅允许注册一个熊掌号，目前仅支持大陆身份证注册"></i>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label" style="margin-top: 10px">手持身份证照</label>
+                                    <button type="button" class="layui-btn upload img-button" lay-data="{size:200,url:'{:url('Setting/settingUpload',array('type'=>'org_license'))}'}"><i class="layui-icon"></i>上传图片</button>
+                                    <div class="layui-upload-list img-div">
+                                        <input type="hidden" name="xzh[operation_idcard]" id="operation_idcard" value="{$xzh_info.operation_idcard|default=''}" class="layui-input">
+                                        <img class="layui-upload-img" id="img_operation_idcard" onclick="window.open('{$xzh_info.operation_idcard}')" src="{$xzh_info.operation_idcard|default=''}">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux"  style="margin-top: 10px">
+                                        <i class="layui-icon layui-icon-tips new-tips" lay-tips="请拍摄免冠正面照，身份证单手举在面部右侧，请勿用前置摄像头自拍高度过肩，勿遮挡面部和身份证有效信息"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="xz_company" <if condition="$xzh_info.type eq 1">style="display: none"</if>>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">企业名称</label>
+                                    <div class="layui-input-inline" style="width: 40%;">
+                                        <input type="text" name="xzh[company]" value="{$xzh_info.company|default=''}" class="layui-input">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">与营业执照或组织机构代码证保持一致</div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">营业执照注册号</label>
+                                    <div class="layui-input-inline" style="width: 40%;">
+                                        <input type="text" name="xzh[org_code]" value="{$xzh_info.org_code|default=''}" class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label" style="margin-top: 10px">营业执照</label>
+                                    <button type="button" class="layui-btn upload img-button" lay-data="{size:200,url:'{:url('Setting/settingUpload',array('type'=>'org_license'))}'}"><i class="layui-icon"></i>上传图片</button>
+                                    <div class="layui-upload-list img-div">
+                                        <input type="hidden" name="xzh[org_license]" value="{$xzh_info.org_license|default=''}" id="org_license" class="layui-input">
+                                        <img class="layui-upload-img" id="img_org_license" onclick="window.open('{$xzh_info.org_license}')" src="{$xzh_info.org_license|default=''}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="margin-top: 10px">头像</label>
+                                <button type="button" class="layui-btn upload img-button" lay-data="{size:200,url:'{:url('Setting/settingUpload',array('type'=>'avatar'))}'}"><i class="layui-icon" ></i>上传图片</button>
+                                <div class="layui-upload-list img-div">
+                                    <input type="hidden" name="xzh[avatar]" id="avatar" value="{$xzh_info.avatar|default=''}" class="layui-input">
+                                    <img class="layui-upload-img" onclick="window.open('{$xzh_info.avatar}')" id="img_avatar" src="{$xzh_info.avatar|default=''}">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="margin-top: 10px">授权书</label>
+                                <button type="button" class="layui-btn upload img-button" lay-data="{size:200,url:'{:url('Setting/settingUpload',array('type'=>'auth_img'))}'}"><i class="layui-icon"></i>上传图片</button>
+                                <div class="layui-upload-list img-div">
+                                    <input type="hidden" name="xzh[auth_img]" lay-verify="required" value="{$xzh_info.auth_img|default=''}" id="auth_img" value="" class="layui-input">
+                                    <img class="layui-upload-img" id="img_auth_img" onclick="window.open('{$xzh_info.auth_img}')" src="{$xzh_info.auth_img|default=''}">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">领域</label>
+                                <div class="layui-input-block"  style="width: 40%;">
+                                    <select name="xzh[domain]" lay-verify="domain">
+                                        <option value="0">请选择领域</option>
+                                        <volist name="domain" id="vo">
+                                            <option value="{$vo.id}"<if condition="$vo.id eq $xzh_info.domain">selected</if> <if condition="$vo.status eq 0">disabled</if>>{$vo.name}</option>
+                                        </volist>
+                                    </select>
+                                </div>
+                            </div>
+                            <if condition="$status eq 3">
+                                <blockquote class="layui-elem-quote" style="margin-left: 130px;width: 600px">
+                                    <span style="color: #FF5722">审核未通过,失败原因：{$info.reason}！</span>
+                                </blockquote>
+                            </if>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <in name="status" value="0,3">
+                                        <button class="layui-btn" lay-submit="" lay-filter="add">提交</button>
+                                        <else/>
+                                        <button class="layui-btn layui-btn-disabled" type="button">提交</button>
+                                    </in>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+        </default>
+    </switch>
+</div>
+<script>
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+        movement: '/tpl/' //动态模板所在目录
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'upload','form'], function(){
+        var $ = layui.jquery
+                ,upload = layui.upload
+                ,form = layui.form;
+        upload.render({
+            elem: '.upload'
+            ,done: function(res){
+                if(res.status < 1){
+                    layer.msg('图片上传失败!');
+                }else{
+                    $('#'+res.type).val(res.path);
+                    $('#img_'+res.type).attr('src',res.path);
+                }
+            }
+        });
+
+        form.on('radio(type)', function(data){
+            var type = parseInt(data.value);
+            if(type===1){
+                $("#xz_company").hide();
+                $("#xz_person").show();
+            }else{
+                $("#xz_company").show();
+                $("#xz_person").hide();
+            }
+        });
+        form.verify({
+            domain: function(value){
+                if(value < 1){
+                    return '请选择领域！';
+                }
+            }
+        });
+
+        form.on('submit(add)', function(data){
+            layer.confirm("每个账号百度只有5次审核机会，请严格按照规范填写，谨慎提交，确认无误，请点击确认。", { title: "提交确认" }, function (index) {
+                layer.close(index);
+                $.ajax({
+                    url:"{:url('setting/xzh')}",
+                    data:$('form').serializeArray(),
+                    type:'post',
+                    dataType:'json',
+                    success:function(res){
+                        if(res.status != 1){
+                            layer.msg(res.msg, {icon: 5});
+                            return false;
+                        }else{
+                            layer.alert(res.msg, {icon: 6},function () {
+                                window.location.reload();
+                            });
+                            return false;
+                        }
+                    },
+                    error : function(XMLHttpRequest, textStatus, errorThrown) {
+                        layer.msg('网络错误！');
+                        return false;
+                    }
+                });
+
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

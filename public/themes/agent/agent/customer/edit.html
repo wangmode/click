@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>添加网推侠客户</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="__TMPL__/public/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/layui.js"></script>
+</head>
+<body>
+<div class="x-body layui-anim layui-anim-up">
+    <form method="post" class="layui-form">
+        <div class="layui-form-item">
+            <label for="company" class="layui-form-label">
+                <span class="x-red">公司名称</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="company" name="company" required="" lay-verify="required" value="{$info.company}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="id" class="layui-form-label">
+                <span class="x-red">代理商</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text"  value="{$info.agent}"  autocomplete="off" class="layui-input">
+                <input type="hidden" id="id" name="id" required="" lay-verify="required" value="{$info.id}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属地区</label>
+            <div id="area">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="linkman" class="layui-form-label">
+                <span class="x-red">联系人</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="linkman" name="linkman" required="" lay-verify="required" value="{$info.linkman}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="linkphone" class="layui-form-label">
+                <span class="x-red">联系电话</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="linkphone" name="linkphone" required="" lay-verify="phone" value="{$info.linkphone}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="qq" class="layui-form-label">
+                <span class="x-red">QQ</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="qq" name="qq" required="" lay-verify="qq" value="{$info.qq}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="wechat" class="layui-form-label">
+                <span class="x-red">微信</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="wechat" name="wechat" required="" lay-verify="wechat" value="{$info.wechat}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="manager" class="layui-form-label">
+                <span class="x-red">业务经理</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="manager" name="manager" required="" lay-verify="required" value="{$info.manager}"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="manager" class="layui-form-label">
+                <span class="x-red">账号</span>
+            </label>
+            <div class="layui-input-inline" style="width:70%">
+                <input type="text" id="account" name="account" disabled value="{$info.account}" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">详细资料</label>
+            <div class="layui-input-block"  style="width: 70%">
+                <textarea placeholder="请输入内容" name="detail" class="layui-textarea" required=""  lay-verify="required">{$info.detail}</textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <button  class="layui-btn" lay-filter="add" lay-submit="">更新</button>
+        </div>
+    </form>
+</div>
+<style>
+    html{background-color: #fff;color: black;margin-top: 20px;}
+</style>
+<script>
+    var catData = {$province};
+    layui.config({
+        base: '__TMPL__/public/', //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form','selectN','selectM'], function(){
+        var $ = layui.$
+            ,form = layui.form,
+            selectN = layui.selectN;
+        //无限级分类-基本配置
+        var area = selectN({
+            //元素容器【必填】
+            elem: '#area'
+            ,search:[false,true]
+            //候选数据【必填】
+            ,data: catData
+            ,selected: [{$info.area_check}]
+        });
+        form.on('submit(add)', function(data){
+            if(area.isSelected!==true){
+                layer.msg('请选择地区！', {icon: 5});
+                return false;
+            }
+            $.ajax({
+                url:"{:url('Customer/editPost')}",
+                data:data.field,
+                type:'post',
+                dataType:'json',
+                success:function(res){
+                    if(res.status !== 1){
+                        layer.msg(res.msg, {icon: 5});
+                        return false;
+                    }else{
+                        layer.alert(res.msg, {icon: 6},function () {
+                            // 获得frame索引
+                            var index = parent.layer.getFrameIndex(window.name);
+                            //关闭当前frame
+                            parent.layer.close(index);
+                        });
+                        return false;
+                    }
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown) {
+                    layer.msg('网络错误！');
+                    return false;
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

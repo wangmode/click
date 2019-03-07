@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>网站设置</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all" id="layuicss-layer">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+</head>
+
+<style>
+    .new-tips{margin-left: 10px;cursor: pointer;color: #3595CC;font-size: 18px}
+</style>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-tab" style="padding-top:20px;padding-left:20px;">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">网站设置</li>
+                        <li><a href="{:url('Setting/water')}">水印设置</a></li>
+                        <li><a href="{:url('Setting/wtx_info')}">新闻设置</a></li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <div class="layui-card-body" pad15="">
+                                <div class="layui-form" wid100="" lay-filter="">
+                                    <form method="post" class="layui-form">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">网站标题</label>
+                                            <div class="layui-input-block" style="width: 70%;">
+                                                <input type="text" name="site_info[sitename]" class="layui-input" value="{$site_info.sitename|default=''}" lay-verify="required" placeholder="网站标题"  style="width: 90%;display: inline-block">
+                                                <i class="layui-icon layui-icon-tips new-tips" lay-tips="标题放置3-5个关键词，中间竖线隔开，调用【diqu】标签，规范：【diqu】关键词|【diqu】关键词|【diqu】关键词|公司名称，示例：大棚保温被|蔬菜大棚保温被|养殖大棚保温被|石家庄茂新农业科技有限公司（不超过80字符）"></i>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">网站关键字</label>
+                                            <div class="layui-input-block" style="width: 70%;">
+                                                <input type="text" name="site_info[keywords]" lay-verify="required" value="{$site_info.keywords|default=''}" class="layui-input"  placeholder="网站关键字" style="width: 90%;display: inline-block">
+                                                <i class="layui-icon layui-icon-tips new-tips" lay-tips="可填写3-8个关键词，中间用英文逗号隔开，示例：大棚保温被，蔬菜大棚保温被，养殖大棚保温被，大棚保温被价格，大棚保温被厂家（不超过100字符）"></i>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item layui-form-text">
+                                            <label style="float:left" class="layui-form-label">网站描述</label>
+                                            <div class="layui-input-block" style="width: 70%;">
+                                                <textarea name="site_info[description]" class="layui-textarea" placeholder="产品前调用地区标签，如【diqu】优站通" lay-verify="required" style="width: 90%;display: inline-block">{$site_info.description|default=''}</textarea>
+                                                <i class="layui-icon layui-icon-tips new-tips" lay-tips="要求新颖有创意，切记复制抄袭，可将更多关键词词尾融合到描述中，关键词重复1-2次，调用【diqu】标签。示例：【diqu】茂新农业科技有限公司专业生产各种【diqu】大棚保温被、【diqu】蔬菜大棚保温被、【diqu】养殖大棚保温被，作为【diqu】大棚保温被厂家，多年来凭借价格低、质量好的优势赢得了客户信赖，咨询电话：0311-888888（不超过200字符）"></i>
+
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">网站LOGO</label>
+                                            <button style="float:left;margin-top: 10px" type="button" class="layui-btn upload" lay-data="{size:2048,url:'{:url('Common/upload',array('type'=>'logo'))}'}"><i class="layui-icon"></i>上传图片</button>
+                                            <div class="layui-upload-list" style="display: inline-block;float: left">
+                                                <input type="hidden" name="site_info[logo]" id="logo" value="{$site_info.logo|default=''}" class="layui-input">
+                                                <empty name="$site_info.logo">
+                                                    <img class="layui-upload-img" style="width: 270px; height:42px;display: none" id="img_logo">
+                                                    <else/>
+                                                    <img class="layui-upload-img" style="width: 270px; height:42px" id="img_logo" src="{:get_img_url($site_info.logo,3)}">
+                                                </empty>
+                                                <p id="demoText"></p>
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux"  style="margin-top: 10px">（建议：450*70）</div>
+                                        </div>
+
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">微信二维码</label>
+                                            <button style="float:left;" type="button" class="layui-btn upload" lay-data="{size:2048,url:'{:url('Common/upload',array('type'=>'qrcode'))}'}"><i class="layui-icon"></i>上传图片</button>
+                                            <div class="layui-upload-list" style="display: inline-block;float: left;margin-left: 10px;margin-top: 0 !important;">
+                                                <input type="hidden" name="site_info[qrcode]" lay-verify="required" id="qrcode" value="{$site_info.qrcode|default=''}" class="layui-input">
+                                                <empty name="$site_info.qrcode">
+                                                    <img class="layui-upload-img" style="width: 38px; height:38px;display: none" id="img_qrcode">
+                                                    <else/>
+                                                    <img class="layui-upload-img" style="width: 38px; height:38px" id="img_qrcode" src="{:get_img_url($site_info.qrcode,3)}">
+                                                </empty>
+                                                <p id="codeText"></p>
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">（建议：128*128）</div>
+                                        </div>
+
+
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">电脑轮播图</label>
+                                            <div class="layui-upload">
+                                                <button type="button" style="float:left" class="layui-btn" id="pc_slide"><i class="layui-icon"></i>上传图片</button>
+                                                <div class="layui-form-mid layui-word-aux" style="width: 40%">（建议尺寸：1900*500）</div>
+                                                <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;margin-left: 130px;width: 60%;float: left">
+                                                    <div class="layui-upload-list" id="pc_slide_preview">
+                                                        <notempty name="site_info.pc_slide">
+                                                            <volist name="site_info.pc_slide" id="pc">
+                                                                <div style="display: inline-block;width: 150px" class="preview">
+                                                                    <img style="display: block" width="133" height="35" src="{:get_img_url($pc,1,133,35)}" class="layui-upload-img"><input type="hidden" name="site_info[pc_slide][]" value="{$pc}">
+                                                                    <button class="layui-btn layui-btn-xs layui-btn-primary" type="button" onclick="window.open('{:get_img_url($pc,3)}')" style="margin-top: 10px">预览</button>
+                                                                    <button class="layui-btn layui-btn-xs layui-btn-danger" type="button" style="margin-top: 10px;margin-left: 20px" onclick="delete_img($(this),'pc')">删除</button>
+                                                                </div>
+                                                            </volist>
+                                                            <input id="pc_count" type="hidden" value="{$site_info.pc_count}" name="site_info[pc_count]">
+                                                            <else/>
+                                                            <input id="pc_count" type="hidden" value="0" name="site_info[pc_count]">
+                                                        </notempty>
+                                                    </div>
+                                                </blockquote>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">手机轮播图</label>
+                                            <div class="layui-upload">
+                                                <button type="button" style="float:left" class="layui-btn" id="mobile_slide"><i class="layui-icon"></i>上传图片</button>
+                                                <div class="layui-form-mid layui-word-aux" style="width: 40%">（建议尺寸：360*160）</div>
+                                                <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;margin-left: 130px;width: 60%;float: left">
+                                                    <div class="layui-upload-list" id="mobile_slide_preview">
+                                                        <notempty name="site_info.mobile_slide">
+                                                            <volist name="site_info.mobile_slide" id="mobile">
+                                                                <div style="display: inline-block;width: 150px" class="preview">
+                                                                    <img style="display: block" width="120" height="50" src="{:get_img_url($mobile,1,120,50)}" class="layui-upload-img"><input type="hidden" name="site_info[mobile_slide][]" value="{$mobile}">
+                                                                    <button class="layui-btn layui-btn-xs layui-btn-primary" type="button" onclick="window.open('{:get_img_url($mobile,3)}')" style="margin-top: 10px">预览</button>
+                                                                    <button class="layui-btn layui-btn-xs layui-btn-danger" type="button" style="margin-top: 10px;margin-left: 20px" onclick="delete_img($(this),'mobile')">删除</button>
+                                                                </div>
+                                                            </volist>
+                                                            <input id="mobile_count" type="hidden" value="{$site_info.mobile_count}" name="site_info[mobile_count]">
+                                                            <else/>
+                                                            <input id="mobile_count" type="hidden" value="0" name="site_info[mobile_count]">
+                                                        </notempty>
+                                                    </div>
+                                                </blockquote>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">联系人</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[linkman]" lay-verify="required" value="{$site_info.linkman|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">客服热线</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[phone]" lay-verify="required" value="{$site_info.phone|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">邮箱</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[email]" lay-verify="required" value="{$site_info.email|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">Q Q</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[qq]" lay-verify="required" value="{$site_info.qq|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">微信号</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[wechat]" lay-verify="required" value="{$site_info.wechat|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">地址</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[address]" lay-verify="required" value="{$site_info.address|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item layui-form-text">
+                                            <label class="layui-form-label">统计代码</label>
+                                            <div class="layui-input-block" style="width: 60%">
+                                                <textarea name="site_info[statistics]" class="layui-textarea">{$site_info.statistics|default=''}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item layui-form-text">
+                                            <label class="layui-form-label">客服代码</label>
+                                            <div class="layui-input-block" style="width: 60%">
+                                                <textarea name="site_info[customer]" class="layui-textarea">{$site_info.customer|default=''}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">备案编号</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[icp]" value="{$site_info.icp|default=''}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">技术支持</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[support]" value="{$site_info.support|default=''}" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">底部版权信息展示</div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">技术支持网址</label>
+                                            <div class="layui-input-inline" style="width: 30%;">
+                                                <input type="text" name="site_info[agent_url]" value="{$site_info.agent_url|default=''}" class="layui-input">
+                                            </div>
+                                            <div class="layui-form-mid layui-word-aux">底部版权信息展示</div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block">
+                                                <button class="layui-btn" lay-submit="" lay-filter="set_website">确认保存</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function  preview(index) {
+        var src = $('#input_'+ index).val();
+        window.open(src);
+    }
+    function delete_img(obj,type){
+        obj.parent('.preview').remove();
+        if(type==='mobile'){
+            var mobile_count = parseInt($('#mobile_count').val());
+            mobile_count = mobile_count-1;
+            $('#mobile_count').val(mobile_count)
+        }else{
+            var pc_count = parseInt($('#pc_count').val());
+            pc_count = pc_count-1;
+            $('#pc_count').val(pc_count)
+        }
+
+    }
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+        movement: '/tpl/' //动态模板所在目录
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'upload','form'], function(){
+        var $ = layui.jquery
+            ,upload = layui.upload
+            ,form = layui.form;
+        upload.render({
+            elem: '.upload'
+            ,done: function(res){
+                if(res.status < 1){
+                    layer.msg('上传失败！');
+                }else{
+                    $('#'+res.type).val(res.data.site_url);
+                    $('#img_'+res.type).attr('src',res.data.oss_url);
+                }
+            }
+        });
+        var pc_slide = $('#pc_slide_preview');
+        var mobile_slide = $('#mobile_slide_preview');
+        upload.render({
+            elem: '#pc_slide'
+            ,url: "{:url('Common/upload')}"
+            ,multiple: true
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    var pc_count = parseInt($('#pc_count').val());
+                    pc_count = pc_count+1;
+                    if(pc_count<=5){
+                        $('#pc_count').val(pc_count);
+                        pc_slide.append(
+                            '<div class="preview" style="display: inline-block;width: 150px">' + '<img width="133" height="35" src="'+ result +'" alt="'+ file.name +'" class="layui-upload-img">' +
+                            '<input id=input_'+index+' type="hidden" name="site_info[pc_slide]['+parseInt(pc_count)+']">' +
+                            '<button class="layui-btn layui-btn-xs layui-btn-primary" type="button" onclick="preview(\''+index+'\')" style="margin-top: 10px">预览</button>\n' +
+                            '<button class="layui-btn layui-btn-xs layui-btn-danger" type="button"  onclick="delete_img($(this),\'pc\')" style="margin-top: 10px;margin-left: 20px">删除</button></div>');
+                    }
+                });
+            }
+            ,done: function(res, index, upload){
+                if(res.status < 1){
+                    return layer.msg('上传失败');
+                }else{
+                    var input = pc_slide.find('#input_'+ index);
+                    input.val(res.data.site_url);
+                }
+            }
+        });
+        upload.render({
+            elem: '#mobile_slide'
+            ,url: "{:url('Common/upload')}"
+            ,multiple: true
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    var count = $('#mobile_count');
+                    var mobile_count = parseInt(count.val());
+                    mobile_count = mobile_count+1;
+                    if(mobile_count<=5){
+                        count.val(mobile_count);
+                        mobile_slide.append(
+                            '<div class="preview" style="display: inline-block;width: 150px">' + '<img width="120" height="50" src="'+ result +'" alt="'+ file.name +'" class="layui-upload-img">' +
+                            '<input id=input_'+index+' type="hidden" name="site_info[mobile_slide]['+parseInt(mobile_count)+']">' +
+                            '<button class="layui-btn layui-btn-xs layui-btn-primary" type="button" onclick="preview(\''+index+'\')" style="margin-top: 10px">预览</button>\n' +
+                            '<button class="layui-btn layui-btn-xs layui-btn-danger" type="button"  onclick="delete_img($(this),\'mobile\')" style="margin-top: 10px;margin-left: 20px">删除</button></div>');
+                    }
+
+                });
+            }
+            ,done: function(res, index){
+                if(res.status < 1){
+                    return layer.msg('上传失败!');
+                }else{
+                    var input = mobile_slide.find('#input_'+ index);
+                    input.val(res.data.site_url);
+                }
+            }
+        });
+        form.on('submit(set_website)', function(data){
+            var pc_count = $('#pc_count').val();
+            var mobile_count = $('#mobile_count').val();
+            if(pc_count<3 || mobile_count<3){
+                layer.msg('请上传至少3-5张轮播图！', {icon: 5});
+                return false;
+            }
+            $.ajax({
+                url:"{:url('setting/sitePost')}",
+                data:$('form').serializeArray(),
+                type:'post',
+                dataType:'json',
+                success:function(res){
+                    if(res.status != 1){
+                        layer.msg(res.msg, {icon: 5});
+                        return false;
+                    }else{
+                        layer.alert(res.msg, {icon: 6},function () {
+                            window.location.reload();
+                        });
+                        return false;
+                    }
+                },
+                error : function(XMLHttpRequest, textStatus, errorThrown) {
+                    layer.msg('网络错误！');
+                    return false;
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

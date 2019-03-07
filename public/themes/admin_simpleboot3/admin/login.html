@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>登录-提单系统</title>
+<link href="__TMPL__/public/css/css.css" rel="stylesheet" type="text/css">
+<script src="__TMPL__/public/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="css.css">
+</head>
+<body>
+	<div class="head">
+		<div class="head-logo"><a href="https://www.meijiexia.com/" target="_blank"><img src="__TMPL__/public/images/logo.png"></a></div>
+		<div class="head-dh">
+			<p>
+				<img src="__TMPL__/public/images/dh.png">
+				免费咨询热线
+			</p>
+			<p><span>0311-66565679</span></p>
+		</div>
+	</div>
+	<div class="banner">
+		<div class="banner-main">
+			<form class="banner-main-right" action="http://admin.meijiexia.com/admin/index/login.html" method="post" id="subFrom" target="_blank">
+				<b><img src="__TMPL__/public/images/tb.png" width="272" height="37"></b>
+				<div>
+					<img src="__TMPL__/public/images/tb1.jpg">
+					<input name="username" id="username" type="text" value="" placeholder="用户名">
+				</div>
+				<div>
+					<img src="__TMPL__/public/images/tb2.jpg">
+					<input name="password" id="password" type="password" value="" placeholder="登录密码">
+				</div>
+				<p>
+					<input name="tijiao" type="button" value="登录" id="btnGo" class="banner-main-right-butt">
+				</p>
+			</form>
+		</div>
+	</div>
+	<div class="foot">
+		<div class="foot-left">
+			<ul>
+				<li>
+					<p>
+						<span>关于我们</span>
+						<a href="#">公司简介</a><br>
+						<a href="#">公司动态</a><br>
+						<a href="#">付款方式</a><br>
+						<a href="#">联系我们</a>
+					</p>
+				</li>
+				<li>
+					<p>
+						<span>新手教程</span>
+						<a href="#">常见问题</a><br>
+						<a href="#">网站地图</a><br>
+						<a href="#">会员介绍</a>
+					</p>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+
+<script type="application/javascript">
+    $("document").ready(function(){
+        //防止在frame里面出现登录页面
+        if(top.location!==self.location){
+            top.location.href=self.location.href;
+        }
+    });
+    $('#btnGo').click(function () {
+        $.ajax({
+            url:"{:url('public/doLogin')}",
+            data:{'username':$('input[name="username"]').val(),'password':$('input[name="password"]').val()},
+            type:'post',
+            dataType:'json',
+            success:function(res){
+                if(res.code !== 1){
+                    layer.msg(res.msg);
+                    return false;
+                }else{
+                    window.location.href = res.url;
+                }
+            },
+            error : function(XMLHttpRequest, textStatus, errorThrown) {
+                layer.msg('网络失败，请刷新页面后重试!');
+                return false;
+            }
+        });
+        return false;
+    });
+</script>
+</body>
+
+</html>

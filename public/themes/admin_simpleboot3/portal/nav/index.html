@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layuiAdmin 控制台主页一</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <link id="layuicss-layer" rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all">
+    <script src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+    <script src="__TMPL__/public/static/admin/layuiadmin/layui/index.js"></script>
+    <script src="__TMPL__/public/static/admin/layuiadmin/layui/admin.js"></script>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header layuiadmin-card-header-auto">
+ 
+           <!--  <div class="layui-form" >
+                <div class="layui-input-inline">
+                    <input type="text" name="title" id="keyword" value="{$keyword|default=''}" placeholder="请输入文章标题" class="layui-input">
+                </div>
+                <button class="layui-btn layui-btn" id="searchBtn">搜 索</button>
+            </div> -->
+                <div class="layui-btn-group ">
+                <!-- <button class="layui-btn layui-btn-sm layui-btn-danger" id="listDelete">删 除</button> -->
+                <!-- <a class="layui-btn layui-btn-sm" href="{:url('AdminTag/add')}">添 加</a> -->
+                <button class="layui-btn layui-btn-sm " onclick="window_open('添加内容','{:url(\'nav/add\')}','1000','500')" >添 加</button>
+                <!-- <button class="layui-btn layui-btn-sm" id="searchBtn">搜 索</button> -->
+            </div>
+        </div>
+        <div class="layui-card-body">
+            
+            <table id="dataTable" lay-filter="dataTable"></table>
+            <script type="text/html" id="options">
+                <div class="layui-btn-group">
+               
+                <button class="layui-btn layui-btn-sm" lay-event="cdgl">菜单管理</button>
+
+        
+                    <button class="layui-btn layui-btn-sm" lay-event="edit">编辑</button>
+
+                    
+                    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</button>
+                </div>
+
+
+
+            </script>
+
+       <!--      <script type="text/html" id="status">
+                {{#  if(d.status == 1){ }}
+                <a class="layui-btn layui-btn-sm layui-btn-warm">已启用</a>
+                {{#  } else { }}
+                <a class="layui-btn layui-btn-sm layui-btn-normal">已禁用</a>
+                {{#  } }}
+            </script> -->
+
+        </div>
+    </div>
+    <script>
+        layui.use(['layer','table','form'],function () {
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+            //用户表格初始化
+            var dataTable = table.render({
+                elem: '#dataTable'
+                ,url: "{:url('Nav/data')}" //数据接口
+                ,page: false
+                ,response: {
+                    statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+                }
+                ,cols: [[ //表头
+                    {checkbox: true,fixed: true}
+//                    ,{field: 'id', title: 'ID', sort: true,width:80}
+                    ,{field: 'name', title: '名称'}
+                    ,{field: 'is_main', title: '主导航'}
+                    ,{field: 'remark', title: '描述'}
+                    ,{fixed: 'right', width: 220, align:'center', toolbar: '#options'}
+                ]]
+            });
+
+            //监听工具条
+            table.on('tool(dataTable)', function(obj){ //注：tool是工具条事件名，dataTable是table原始容器的属性 lay-filter="对应的值"
+                var data = obj.data //获得当前行数据
+                    ,layEvent = obj.event; //获得 lay-event 对应的值
+                if(layEvent === 'del'){
+                    // layer.msg(data.id);
+
+                    layer.confirm('确认删除吗？', function(index){
+                        layer.msg(data.id);
+                        $.post("{:url('Nav/delete')}",{_method:'delete',id:data.id},function (result) {
+                            if (result.code==0){
+                                // layer.msg(data.id);
+                                obj.del(); //删除对应行（tr）的DOM结构
+                            }
+                            layer.close(index);
+                            layer.msg(result.msg)
+                        });
+                    });
+                } else if(layEvent === 'edit'){
+                    // window_open('编辑','{:url(\'NavMenu/index\')}?nav_id=' +data.id,'1000','500')；
+                    window_open('编辑','{:url(\'nav/edit\')}?id='+data.id,'1000','500');
+
+                  
+
+                }else if(layEvent === 'cdgl'){
+                     window_open('添加内容','{:url(\'NavMenu/index\')}?nav_id='+data.id,'1000','500');
+                    console.log('{:url(\'NavMenu/index\')}?nav_id='+data.id);
+                     // window_open('菜单管理','{:url(\'nav/edit\')}?nav_id='+data.id,'1000','500')；
+
+                  
+                }
+
+            });
+
+
+            //监听是否显示
+            form.on('switch(isShow)', function(obj){
+                var index = layer.load();
+                var url = $(obj.elem).attr('url')
+                var data = {
+                    "is_show" : obj.elem.checked==true?1:0,
+                    "_method" : "put"
+                }
+                $.post(url,data,function (res) {
+                    layer.close(index)
+                    layer.msg(res.msg)
+                },'json');
+            });
+
+            //按钮批量删除
+            $("#listDelete").click(function () {
+                var ids = []
+                var hasCheck = table.checkStatus('dataTable')
+                var hasCheckData = hasCheck.data
+                if (hasCheckData.length>0){
+                    $.each(hasCheckData,function (index,element) {
+                        ids.push(element.id)
+                    })
+                }
+                if (ids.length>0){
+                    // console.log(ids);
+                    layer.confirm('确认删除吗？', function(index){
+                        $.post("{:url('AdminTag/delete')}",{_method:'delete',ids:ids},function (result) {
+                            if (result.code==0){
+
+                                dataTable.reload()
+                            }
+                            layer.close(index);
+                            layer.msg(result);
+                            layer.msg(result.msg)
+                        });
+                    })
+                }else {
+                    layer.msg('请选择删除项')
+                }
+            })
+
+            //搜索
+            $("#searchBtn").click(function () {
+                var keyword = $("#keyword").val();
+                // var catId = $("#category_id").val()
+                // var title = $("#title").val();
+                dataTable.reload({
+                    url: '{:url("AdminTag/data")}',
+                    where:{keyword:keyword},
+                    page:{curr:1},
+                    method:'post',
+                    done:function (res) {
+                        userPage.data = res.data;
+                    }
+                })
+            })
+        })
+    </script>
+</div>
+
+
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    layui.config({
+        base: 'static/admin/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','form','layer','table','upload','laydate'],function () {
+        var element = layui.element;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var upload = layui.upload;
+        var laydate = layui.laydate;
+
+
+        layer.msg("错误",{icon:5});
+
+
+        //信息提示
+    @if(session('status'))
+        layer.msg("{{session('status')}}",{icon:6});
+    @endif
+
+        //监听消息推送
+        $(document).ready(function () {
+            // 连接服务端
+            var socket = io("{{config('custom.PUSH_MESSAGE_LOGIN')}}");
+            // 连接后登录
+            socket.on('connect', function () {
+                socket.emit('login', "{{auth()->user()->uuid}}");
+            });
+            // 后端推送来消息时
+            socket.on('new_msg', function (title, content) {
+                //弹框提示
+                layer.open({
+                    title: title,
+                    content: content,
+                    offset: 'rb',
+                    anim: 1,
+                    time: 5000
+                })
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

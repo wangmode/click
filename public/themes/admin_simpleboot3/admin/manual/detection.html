@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>优站通卫士</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+  <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/modules/layer/default/layer.css" media="all" id="layuicss-layer">
+  <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+  <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+</head>
+<style>
+
+  #LAY-component-timeline .layui-card-body{padding: 15px;}
+  .layui-progress{margin: 25px 0;}
+  .code{margin-top: -58px;margin-left: 20px;font-size: 20px;z-index: 9999;position: absolute;color: #fff;}
+  .component-anim-demo{margin-right: 50px;}
+  .layui-badge{margin-right: 5px;border-radius: 50%;width: 7px;height: 18px;}
+  .layadmin-text-center img {width: 50px;height:50px;margin-top: 5px;}
+  .tubiao{float: left;margin: 0 20px; font-size: 12px}
+  .tubiao_txt{margin-top: 8px;color: #FF5722}
+</style>
+<body>
+  <div class="layui-fluid" id="LAY-component-timeline">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+          <div class="layui-card-header">优站通卫士</div>
+          <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+              <div class="layui-inline" style="float:left">
+                  <ul class="component-anim-demo">
+                    <li>
+                      <div class="layui-anim" data-anim="layui-anim-rotate layui-anim-loop"><img width="75" height="75" src="__TMPL__/public/images/brabd_reg5.png" alt=""></div>
+                        <div class="code"><span id="fraction">{$result.fraction}</span>分</div>
+                    </li>
+                  </ul>
+              </div>
+              <div class="layui-progress layui-progress-big layui-col-xs6" lay-showpercent="true"  lay-filter="rate">
+                <div class="layui-progress-bar layui-bg-green" lay-percent="{$result.rate}%" style="width: 70%;"><span class="layui-progress-text">{$result.rate}%</span></div>
+              </div>
+              <div class="layui-inline" style="margin-left:70px;margin-top:10px;">
+                <button id="tijian" class="layui-btn layuiadmin-btn-forum-list" lay-submit="" lay-filter="LAY-app-forumlist-search">
+                    <if condition="$result.status eq 0">开始体检<else/>重新体检</if>
+                </button>
+              </div>
+            </div>
+          </div>
+            <div id="content" <if condition="$result.status eq 0">style="display: none"</if>>
+                <div class="layui-col-md12">
+                    <div class="layui-card">
+                        <div class="layui-card-header"><span class="layui-badge">!</span>共检查了<span id="item_count">{$result.count}</span>项，其中<span id="matter_count">{$result.matter}</span>项存在问题,需要修复</div>
+                        <div class="layui-card-body" id="matter">
+                            <volist name="result.matter_list" id="vo">
+                                <div class="tubiao" lay-tips="{$vo.tip}">
+                                    <a href="javascript:;" >
+                                        <div class="layadmin-text-center">
+                                            <img src="__TMPL__/public/images/{$vo.pic}">
+                                            <div class="layadmin-maillist-img layadmin-font-blod tubiao_txt">{$vo.name}</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </volist>
+                            <div style="clear:both;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md12">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            <div style="margin-left:15px;margin-right:-6px;margin-top:5px;" class="layui-unselect layui-form-checkbox layui-form-checked" lay-skin="primary">
+                                <i style='border-radius: 50%;' class="layui-icon layui-icon-ok"></i>
+                            </div>以下几项没有问题
+                        </div>
+                        <div class="layui-card-body">
+                            <ul class="layui-timeline" id="normal">
+                                <volist name="result.list" id="voo">
+                                    <li class="layui-timeline-item">
+                                        <i class="layui-icon layui-timeline-axis"></i>
+                                        <div class="layui-timeline-content layui-text">
+                                            <div class="layui-timeline-title">{$voo.name}</div>
+                                        </div>
+                                    </li>
+                                </volist>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+  <script>
+  layui.config({
+      base: '__TMPL__/public/static/admin/layuiadmin/', //静态资源所在路径
+      movement: '/tpl/' //动态模板所在目录
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index'], function(){
+    var $ = layui.$
+    ,element = layui.element;
+    element.render('progress');
+    $('#tijian').on('click', function(){
+        $('#tijian').html('检测中');
+        $('#tijian').attr("disabled","disabled");
+        $('#content').show();
+        $('#normal').html('');
+        $('#matter').html('<div style="clear:both;"></div>');
+        $('#fraction').html(0);
+        $('#matter_count').html(0);
+        var othis = $('.component-anim-demo .layui-anim'), anim = othis.data('anim');
+        var i=0;
+        var timer = setInterval(function(){
+            i++;
+            examination(i);
+            if(i>2){
+                clearInterval(timer);
+                $('#tijian').attr("disabled",false);
+                $('#tijian').html('重新检测');
+                return othis.removeClass(anim);
+            }
+        },2000);
+        /* 停止循环 */
+        if(othis.hasClass('layui-anim-loop')){
+            return othis.removeClass(anim);
+        }
+        othis.removeClass(anim);
+        setTimeout(function(){
+            othis.addClass(anim);
+        });
+    });
+      function examination(step) {
+          $.ajax({
+              url:"{:url('manual/examination')}",
+              data:{step:step},
+              type:'post',
+              dataType:'json',
+              success:function(res){
+                  if(res.status != 1){
+                      layer.msg(res.msg, {icon: 5});
+                      return false;
+                  }else{
+                      $.each(res.data,function(i,n)
+                      {
+                          var fraction = $('#fraction').html();
+                          $('#fraction').html(parseInt(n.fraction)+parseInt(fraction));
+                          if(n.status===1){
+                              var html = '<li class="layui-timeline-item">\n' +
+                                  '                      <i class="layui-icon layui-timeline-axis"></i>\n' +
+                                  '                      <div class="layui-timeline-content layui-text">\n' +
+                                  '                        <div class="layui-timeline-title">'+n.name+'</div>\n' +
+                                  '                      </div>\n' +
+                                  '                    </li>';
+                              $('#normal').prepend(html);
+
+                          }else{
+                              var html = '<div class="tubiao" lay-tips="'+n.tip+'">\n' +
+                                  '                                <a href="javascript:;">\n' +
+                                  '                                    <div class="layadmin-text-center">\n' +
+                                  '                                        <img src="__TMPL__/public/images/'+n.pic+'">\n' +
+                                  '                                        <div class="layadmin-maillist-img layadmin-font-blod tubiao_txt">'+n.name+'</div>\n' +
+                                  '                                    </div>\n' +
+                                  '                                </a>\n' +
+                                  '                            </div>';
+                              $('#matter').prepend(html);
+                          }
+                      });
+                      var matter_count = $('#matter_count').html();
+                      $('#matter_count').html(parseInt(res.matter)+parseInt(matter_count));
+                      $('#item_count').html(res.count);
+                      element.progress('rate', res.rate+'%');
+                      return false;
+                  }
+              }
+          });
+
+
+          return false;
+
+      }
+  });
+
+
+  </script>
+</body>
+</html>

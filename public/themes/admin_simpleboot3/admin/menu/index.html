@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>后台菜单</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/admin.js"></script>
+    <script src="__TMPL__/public/assets/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        //全局变量
+        var GV = {
+            ROOT: "__ROOT__/",
+            WEB_ROOT: "__WEB_ROOT__/",
+            JS_ROOT: "static/js/",
+            APP: '{$Request.module}'/*当前应用名*/
+        };
+    </script>
+    <script src="__STATIC__/js/wind.js"></script>
+    <script src="__TMPL__/public/assets/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header layuiadmin-card-header-auto" id="component-layer-list">
+            <div class="layadmin-layer-demo">
+                <button class="layui-btn layuiadmin-btn-list" onclick="window_open('添加菜单','{:url(\'Menu/add\')}','600','600')"><i class="layui-icon"></i>添加</button>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <form method="post">
+                <table class="layui-table layui-form" id="menus-table">
+                    <thead>
+                    <tr>
+                        <th width="70">ID</th>
+                        <th>栏目名</th>
+                        <th>操作</th>
+                        <th width="50">状态</th>
+                        <th width="220">操作</th>
+                    </thead>
+                    <tbody class="x-cate">
+                    {$category}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="__STATIC__/js/admin.js"></script>
+<script>
+    $(document).ready(function() {
+        Wind.css('treeTable');
+        Wind.use('treeTable', function() {
+            $("#menus-table").treeTable({
+                indent : 20
+            });
+        });
+    });
+
+    function menuDelete(id){
+        layer.confirm('确认删除吗？', function(index){
+            $.post("{:url('Menu/delete')}",{id:id},function (result) {
+                if (result.status==0){
+                    layer.msg(result.msg, {icon: 5});
+                    return false;
+                }
+                layer.close(index);
+                layer.alert(result.msg, {icon: 6},function () {
+                    window.location.reload();
+                });
+                return false;
+            });
+        })
+    }
+
+</script>
+</body>
+</html>
+
+
+

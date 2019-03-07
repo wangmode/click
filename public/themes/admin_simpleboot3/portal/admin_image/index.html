@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>图片管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/static/admin/layuiadmin/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/layui.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/lay/modules/util.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/static/admin/layuiadmin/layui/admin.js"></script>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form" >
+            <div class="layui-input-inline">
+                <input type="text" name="title" id="keyword" value="{$keyword|default=''}" placeholder="请输入文章标题" class="layui-input">
+            </div>
+            <button class="layui-btn layui-btn" id="searchBtn">搜 索</button>
+        </div>
+            <div style="margin-top: 10px">
+                <button class="layui-btn  layuiadmin-btn-list layui-btn-danger" id="listDelete">删 除</button>
+                <button class="layui-btn  layuiadmin-btn-list " onclick="window_open('添加内容','{:url(\'AdminImage/add\')}','1000','600')"  >添 加</button>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <table id="dataTable" lay-filter="dataTable"></table>
+            <script type="text/html" id="img">
+                <div><img src="{:get_img_url({{ d.thumbnail }},3)}"></div>
+            </script>
+            <script type="text/html" id="published_time">
+                {{ time2date(d.published_time) }}
+            </script>
+            <script type="text/html" id="option">
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-sm"  lay-event="edit">编辑</button>
+                </div>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</button>
+                </div>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    function time2date(t){
+        var t1 = parseInt(t + '000');
+        return layui.util.toDateString(t1);
+    }
+    layui.config({
+        base: '__TMPL__/public/static/admin/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['layer','table','form'],function () {
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        //用户表格初始化
+        var dataTable = table.render({
+            elem: '#dataTable'
+            ,url: "{:url('AdminImage/data')}" //数据接口
+            ,size: 'lg'
+            ,page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                ,limit:10 //一页显示多少条
+                ,limits:[5,10,15]//每页条数的选择项
+                ,groups: 2 //只显示 2 个连续页码
+                ,first: "首页" //不显示首页
+                ,last: "尾页" //不显示尾页
+            } //开启分页
+            ,response: {
+                statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+            }
+            ,cols: [[ //表头
+                {checkbox: true,fixed: true}
+                ,{field: 'post_title', title: '标题'}
+                ,{field: 'category',  title: '栏目'}
+                ,{field: 'thumbnail', title: '缩略图',templet:'#img'}
+                ,{field: 'published_time', title: '发布时间', templet: '#published_time'}
+                ,{fixed: 'right', align:'center', title:'操作',toolbar: '#option'}
+            ]]
+        });
+
+
+        //监听工具条
+        table.on('tool(dataTable)', function(obj){ //注：tool是工具条事件名，dataTable是table原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                ,layEvent = obj.event; //获得 lay-event 对应的值
+            if(layEvent === 'del'){
+                layer.confirm('确认删除吗？', function(index){
+                    $.post("{:url('AdminImage/delete')}",{_method:'delete',ids:[data.id]},function (result) {
+                        if (result.code==0){
+                          layer.msg(result.msg);
+                          dataTable.reload();
+                          //  obj.del(); //删除对应行（tr）的DOM结构
+                        }
+                        //layer.close(index);
+                        
+                    });
+                });
+            } else if(layEvent === 'edit'){
+                window_open('添加内容','{:url(\'AdminImage/edit\')}?id='+data.id,'1000','600');
+            }
+
+        });
+
+        //按钮批量删除
+        $("#listDelete").click(function () {
+            var ids = []
+            var hasCheck = table.checkStatus('dataTable')
+            var hasCheckData = hasCheck.data
+            if (hasCheckData.length>0){
+                $.each(hasCheckData,function (index,element) {
+                    ids.push(element.id)
+                })
+            }
+            if (ids.length>0){
+                // console.log(ids);
+                layer.confirm('确认删除吗？', function(index){
+                    $.post("{:url('AdminImage/delete')}",{_method:'delete',ids:ids},function (result) {
+                        if (result.code==0){
+
+                            dataTable.reload()
+                        }
+                        layer.close(index);
+                        layer.msg(result);
+                        layer.msg(result.msg)
+                    });
+                })
+            }else {
+                layer.msg('请选择删除项')
+            }
+        });
+
+
+        //搜索
+        $("#searchBtn").click(function () {
+            var keyword = $("#keyword").val();
+            dataTable.reload({
+                url: '{:url("AdminImage/data")}',
+                where:{keyword:keyword},
+                page:{curr:1},
+                method:'post',
+                done:function (res) {
+                    userPage.data = res.data;
+                }
+            })
+        })
+    })
+</script>
+</body>
+</html>
