@@ -35,144 +35,38 @@ class CustomerController extends UserBaseController
     //获取客户信息
     public function data()
     {
-        $info = $this->request->param();
-        $start = ($info['page']-1)*$info['limit'];
-        $type = $info['type']?:2;
-        $where['type'] = $type;
-        $user = cmf_get_current_user();
-        $where['agent_id'] = $user['id'];
-
-        if(isset($info['keywords']) && $info['keywords']){
-            $keywords = trim($info['keywords']);
-            $where['company'] = ['like','%'.$keywords.'%'];
-        }
-
-        if(isset($info['url']) && $info['url']){
-            $url = trim($info['url']);
-            $where['url'] = ['like','%'.$url.'%'];
-        }
-
-        $count = db('customer')->where($where)->count();
-        $customer_list = Db::name('customer')
-            ->where($where)
-            ->limit($start,$info['limit'])
-            ->order('id', 'desc')
-            ->select()->toArray();
-
-            foreach ($customer_list as $k=>$v){
-                $amount = 0;
-                $remaining = 0;
-                $baobiao_url = '';
-                if($v['wtx_id']){
-                    $baobiao_url = 'http://sh.yzt-tools.com/admin/baobiaoone/index/sousuo/baidu/adminid/'.$v['wtx_id'].'.html';
-                    $info = CommonConfigModel::getConfigInfoByAdminId($v['wtx_id']);
-                    $amount = $info['amount'];
-                    $remaining = $info['remaining'];
-                }
-                $customer_list[$k]['wtx_id_64'] = base64_encode($v['wtx_id']);
-                $customer_list[$k]['wtx_amount'] = $amount;
-                $customer_list[$k]['wtx_remaining'] = $remaining;
-                $customer_list[$k]['baobiao_url'] = $baobiao_url;
-            }
-
-
-        $data['code'] = 200;
-        $data['count'] = $count;
-        $data['message'] = '';
-        $data['data'] = $customer_list;
-        return json($data);
-    }
-
-    /**
-     * 网推侠客户续费
-     * @return \think\response\Json
-     */
-    public function customerRenew(){
-        $id = $this->request->param('id');
-        $product_id = $this->request->param('product_id');
-        $user = cmf_get_current_user();
-        Db::startTrans();
-        try {
-            if(empty($id) || empty($product_id) || $user === false){
-                throw new Exception("非法访问！");
-            }
-            CommonCustomerModel::checkCustomerByAgentId($id,$user['id']);
-            CommonCustomerModel::cstomerWTXRenew($product_id, $id);
-            Db::commit();
-            return json(['status'=>1,'data'=>null,'message'=>"续费成功！"]);
-        } catch (Exception $e) {
-            Db::rollback();
-            return json(['status'=>0,'data'=>null,'message'=>$e->getMessage()]);
-        }
-    }
-
-    /**
-     * 通过客户等级获取产品信息
-     * @return \think\response\Json
-     */
-    public function getProductList(){
-        $id = $this->request->param('id');
+        $page = $this->request->param('page',1,'number');
+        $limit= $this->request->param('limit',10,'number');
+        $keywords = $this->request->param('keywords',1,'string');
+        $agent_id = cmf_get_current_user()['id'];
         try{
-            if(empty($id)){
-                throw new Exception("非法访问！");
+            if(empty($agent_id)){
+                throw new Exception("非法访问!");
             }
-            $level =CommonCustomerModel::getAgentLevelById($id);
-            $product_list = CommonProductModel::getProductByLevel(CommonProductModel::TYPE_WTX,$level);
-            if(empty($product_list)){
-                throw new Exception("找不到续费产品信息！");
-            }
-            return json(['status'=>1,'data'=>$product_list,'message'=>"获取产品信息成功！"]);
+            $customer_list = CustomerModel::getKPBCustomerListByAgentId($agent_id,$keywords,$page,$limit);
+            $count = CustomerModel::getKPBCustomerCountByAgentId($agent_id,$keywords);
+            return json(['code'=>200,'count'=>$count,'data'=>$customer_list,'message'=>"获取客户信息成功！"]);
         }catch (Exception $exception){
-            return json(['status'=>0,'data'=>null,'message'=>$exception->getMessage()]);
+            return json(['code'=>0,'count'=>0,'data'=>null,'message'=>$exception->getMessage()]);
         }
     }
+
+
+
 
     /**
      * 添加新客户
      */
     public function add()
     {
-        $type= $this->request->param('type')?:1;
         $area_info = yzt_get_city_info();
-        $agent_info = cmf_get_current_user();
         //分类信息
         $class_info = cmf_get_option('class_info');
         $this->assign('province',json_encode($area_info));
         $this->assign('class_info',$class_info);
-        if($type==2){
-            $product_list = get_product_list($agent_info['level'],'wtx');
-            //$product_list = Db::name('product')->where('type','wtx')->select();
-            $this->assign('product_list',$product_list);
-            //托管
-            $product_trust = Db::name('product')->where('type','trust')->select();
-            $this->assign('product_trust',$product_trust);
-            return $this->fetch('wtx');
-        }else{
-            $product_list = get_product_list($agent_info['level'],'yzt');
-            $this->assign('product_list',$product_list);
-            return $this->fetch('yzt');
-        }
+        return $this->fetch();
     }
 
-    /**
-     * 新客户保存
-     */
-    public function customer_add_post(){
-        if($this->request->isPost()){
-            $customer_info = $this->request->post();
-            if(isset($customer_info['url'])){
-                if(url_is_exists($customer_info['url'])){
-                    return json(['status'=>0,'msg'=>'该域名已存在！']);
-                }
-            }
-            $agent_id = cmf_get_current_user_id();
-            $customer = new CustomerModel();
-            $result = $customer->add_customer($customer_info,$agent_id);
-            return json($result);
-        }else{
-            return json(['status'=>0,'msg'=>'没有收到数据！']);
-        }
-    }
 
     /**
      * 编辑
@@ -183,14 +77,32 @@ class CustomerController extends UserBaseController
         $area_info = yzt_get_city_info();
         $this->assign('province',json_encode($area_info));
         $CustomerModel = CustomerModel::get($id);
-        //代理商
-        $agent = Db::name('agent')->where('id',$CustomerModel['agent_id'])->value('account');
+        $class_info = cmf_get_option('class_info');
+        $this->assign('class_info',$class_info);
         //地区
         $area_check = $CustomerModel['province'].','.$CustomerModel['city'];
-        $CustomerModel['agent'] = $agent;
         $CustomerModel['area_check'] = $area_check;
         $this->assign('info', $CustomerModel);
         return $this->fetch();
+    }
+
+    /**
+     * 添加客户提交保存
+     */
+    public function addPost()
+    {
+        $data      = $this->request->param();
+        $data['agent_id'] = cmf_get_current_user()['id'];
+        $validate = $this->validate($data,'CustomerKPB.add');
+        try{
+            if($validate !== true){
+                throw new Exception($validate);
+            }
+            CustomerModel::addKPBCustomer($data);
+            return json(['status'=>1,'data'=>null,'message'=>"新建客户成功！"]);
+        }catch (Exception $exception){
+            return json(['status'=>0,'data'=>null,'message'=>$exception->getMessage()]);
+        }
     }
 
     /**
@@ -199,12 +111,17 @@ class CustomerController extends UserBaseController
     public function editPost()
     {
         $data      = $this->request->param();
-        $CustomerModel = new CustomerModel();
-        $result    = $CustomerModel->allowField(true)->isUpdate(true)->save($data);
-        if ($result === false) {
-            return json(['status'=>0,'msg'=>$CustomerModel->getError()]);
+        $data['agent_id'] = cmf_get_current_user()['id'];
+        $validate = $this->validate($data,'CustomerKPB.edit');
+        try{
+            if($validate !== true){
+                throw new Exception($validate);
+            }
+            CustomerModel::updateKPBCustomer($data);
+            return json(['status'=>1,'data'=>null,'message'=>"更新客户成功！"]);
+        }catch (Exception $exception){
+            return json(['status'=>0,'data'=>null,'message'=>$exception->getMessage()]);
         }
-        return json(['status'=>1,'msg'=>'保存成功']);
     }
 
     public function to_disable(){

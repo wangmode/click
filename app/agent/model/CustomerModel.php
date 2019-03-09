@@ -10,10 +10,113 @@
 // +----------------------------------------------------------------------
 namespace app\agent\model;
 
+use app\common\model\KeywordProductModel;
+use think\Exception;
 use think\Model;
 use think\db;
 class CustomerModel extends Model
 {
+
+    protected $connection = "db_daili";
+
+    const STATUS_UNAUDITED = 0;     //未审核
+    const STATUS_NORMAL = 1;        //正常
+    const STATUS_PROHIBIT = 2;      //禁用
+
+    const TYPE_YZT = 1;             //优站通（熊掌客）
+    const TYPE_WTX = 2;             //网推侠
+    const TYPE_ALL = 3;             //网推侠 + 优站通（熊掌客）
+    const TYPE_KPB = 5;             //快排宝
+
+
+    /**
+     * 新建快排宝客户数据
+     * @param $data
+     * @throws Exception
+     */
+    static public function addKPBCustomer($data)
+    {
+        $admin_id = AgentModel::getAdminIdById($data['agent_id']);
+        $area = explode(',',$data['area']);
+        unset($data['area']);
+        $data['admin_id'] = $admin_id;
+        $data['type'] = self::TYPE_KPB;
+        $data['status'] = self::STATUS_NORMAL;
+        $data['add_time']=time();
+        $data['province']  =  $area[0];
+        $data['city']  =  $area[1];
+        self::insertKPBData($data);
+    }
+
+
+    /**
+     * 新增快排宝客户数据
+     * @param $data
+     */
+    static public function insertKPBData($data)
+    {
+        self::insert([
+            'account'       =>$data['account'],
+            'password'      =>password_hash($data['password'],PASSWORD_DEFAULT),
+            'company'       =>$data['company'],
+            'agent_id'      =>$data['agent_id'],
+            'class'         =>$data['class'],
+            'linkman'       =>$data['linkman'],
+            'linkphone'     =>$data['linkphone'],
+            'qq'            =>$data['qq'],
+            'wechat'        =>$data['wechat'],
+            'detail'        =>$data['detail'],
+            'admin_id'      =>$data['admin_id'],
+            'type'          =>self::TYPE_KPB,
+            'status'        =>self::STATUS_NORMAL,
+            'add_time'      =>time(),
+            'province'      =>$data['province'],
+            'city'          =>$data['city']
+        ]);
+    }
+
+    /**
+     * 更新快排宝数据
+     * @param $data
+     */
+    static public function updateKPBData($data)
+    {
+        $info = [
+            'id'            =>$data['id'],
+            'company'       =>$data['company'],
+            'agent_id'      =>$data['agent_id'],
+            'linkphone'     =>$data['linkphone'],
+            'class'         =>$data['class'],
+            'linkman'       =>$data['linkman'],
+            'qq'            =>$data['qq'],
+            'wechat'        =>$data['wechat'],
+            'detail'        =>$data['detail'],
+            'province'      =>$data['province'],
+            'city'          =>$data['city']
+        ];
+        if(!empty($data['password'])){
+            $info['password'] = $data['password'];
+        }
+        self::update($info);
+    }
+
+
+    /**
+     *更新快排宝客户数据
+     * @param $data
+     */
+    static public function updateKPBCustomer($data)
+    {
+        $area = explode(',',$data['area']);
+        unset($data['area']);
+        $data['province']  =  $area[0];
+        $data['city']  =  $area[1];
+        self::updateKPBData($data);
+    }
+
+
+
+
     //添加客户
     function add_customer($customer_info,$agent_id){
         $product = CustomerModel::name('product')->where('id',$customer_info['product_id'])->find()->toArray();
@@ -244,6 +347,66 @@ class CustomerModel extends Model
 
 
     }
+
+    /**
+     * 获取当前代理快排宝客户数据列表
+     * @param $agent_id         //代理ID
+     * @param $keyword          //搜索关键词
+     * @param $page             // 分页
+     * @param $limit            // 每页条数
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\exception\DbException
+     * @throws db\exception\DataNotFoundException
+     * @throws db\exception\ModelNotFoundException
+     */
+    static public function getKPBCustomerListByAgentId($agent_id,$keyword,$page,$limit)
+    {
+        $where = [];
+        if(!empty($keyword)){
+            $keywords = trim($keyword);
+            $where['c.company|c.linkphone|c.linkman|c.url'] =['like',"%$keywords%"];
+        }
+        $start = ($page-1)*$limit;
+
+        $customer_list = self::alias('c')
+                                ->join('agent a','a.id = c.agent_id','left')
+                                ->where($where)
+                                ->where('c.type',self::TYPE_KPB)
+                                ->where('c.agent_id = :agent_id or a.pid = :p_id ',['agent_id'=>$agent_id,'p_id'=>$agent_id])
+                                ->field(['c.id','c.company','c.linkman','c.linkphone','c.money','a.company as agent_name'])
+                                ->limit($start,$limit)
+                                ->select();
+
+        foreach ($customer_list as $key=>$value){
+            $top = KeywordProductModel::getTopKeywordNumAndMoneyByCustomerId($value['id']);
+            $customer_list[$key]['total'] = KeywordProductModel::getKeywordNumByCustomerId($value['id']);
+            $customer_list[$key]['top'] = $top['top'];
+            $customer_list[$key]['cost'] = $top['cost'];
+        }
+        return $customer_list;
+    }
+
+
+    /**
+     * 获取条件查询总数
+     * @param $agent_id     //代理ID
+     * @param $keyword      //查询关键词
+     * @return int|string
+     */
+    static public function getKPBCustomerCountByAgentId($agent_id,$keyword)
+    {
+        $where = [];
+        if(!empty($keyword)){
+            $where['c.company|c.linkphone|c.linkman|c.url'] =['like',"%$keyword%"];
+        }
+        return self::alias('c')
+            ->join('agent a','a.id = c.agent_id','left')
+            ->where($where)
+            ->where('c.type',self::TYPE_KPB)
+            ->where('c.agent_id = :agent_id or a.pid = :p_id ',['agent_id'=>$agent_id,'p_id'=>$agent_id])
+            ->count();
+    }
+
 
 
 

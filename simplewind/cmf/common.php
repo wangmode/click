@@ -16,6 +16,10 @@ use think\Route;
 use think\Loader;
 use think\Request;
 use cmf\lib\Storage;
+use app\common\model\UserTokenModel;
+use app\common\model\OperationLogModel;
+use app\common\model\CityModel;
+use app\common\model\OptionModel;
 
 // 应用公共文件
 
@@ -564,12 +568,10 @@ function cmf_get_option($key)
     }
 
     $optionValue = cache('cmf_options_' . $key);
-
     if (empty($optionValue)) {
-        $optionValue = Db::name('option')->where('option_name', $key)->value('option_value');
+        $optionValue = OptionModel::getOptionValueByName($key);
         if (!empty($optionValue)) {
             $optionValue = json_decode($optionValue, true);
-
             cache('cmf_options_' . $key, $optionValue);
         }
     }
@@ -1499,40 +1501,46 @@ function file_exists_case($filename)
 }
 
 /**
- * 生成用户 token
- * @param $userId
- * @param $deviceType
- * @return string 用户 token
+ * 生成用户     TOKEN
+ * @param $userId       //用户ID
+ * @param $deviceType   //设备类别
+ * @return mixed|string
+ * @throws \think\db\exception\DataNotFoundException
+ * @throws \think\db\exception\ModelNotFoundException
+ * @throws \think\exception\DbException
  */
 function cmf_generate_user_token($userId, $deviceType)
 {
-    $userTokenQuery = Db::name("user_token")
-        ->where('user_id', $userId)
-        ->where('device_type', $deviceType);
-    $findUserToken  = $userTokenQuery->find();
-    $currentTime    = time();
-    $expireTime     = $currentTime + 24 * 3600 * 180;
+//    $userTokenQuery = Db::name("user_token")
+//        ->where('user_id', $userId)
+//        ->where('device_type', $deviceType);
+//    $findUserToken  = $userTokenQuery->find();
+    $findUserToken = UserTokenModel::getUserTokenByUserId($userId,$deviceType);
+//    $currentTime    = time();
+//    $expireTime     = $currentTime + 24 * 3600 * 180;
     $token          = md5(uniqid()) . md5(uniqid());
     if (empty($findUserToken)) {
-        Db::name("user_token")->insert([
-            'token'       => $token,
-            'user_id'     => $userId,
-            'expire_time' => $expireTime,
-            'create_time' => $currentTime,
-            'device_type' => $deviceType
-        ]);
+        UserTokenModel::addUserToken($userId, $deviceType,$token);
+//        Db::name("user_token")->insert([
+//            'token'       => $token,
+//            'user_id'     => $userId,
+//            'expire_time' => $expireTime,
+//            'create_time' => $currentTime,
+//            'device_type' => $deviceType
+//        ]);
     } else {
         if ($findUserToken['expire_time'] > time() && !empty($findUserToken['token'])) {
             $token = $findUserToken['token'];
         } else {
-            Db::name("user_token")
-                ->where('user_id', $userId)
-                ->where('device_type', $deviceType)
-                ->update([
-                    'token'       => $token,
-                    'expire_time' => $expireTime,
-                    'create_time' => $currentTime
-                ]);
+           UserTokenModel::updateUserToken($userId, $deviceType);
+//            Db::name("user_token")
+//                ->where('user_id', $userId)
+//                ->where('device_type', $deviceType)
+//                ->update([
+//                    'token'       => $token,
+//                    'expire_time' => $expireTime,
+//                    'create_time' => $currentTime
+//                ]);
         }
 
     }
@@ -2171,14 +2179,33 @@ function getFile111($url, $save_dir = '', $filename = '', $type = 0)
     );
 }
 
-//获取城市信息
+/**
+ * 添加操作日志
+ * @param $admin_id         //操作人ID
+ * @param $admin_type       //操作人类别
+ * @param $table            // 操作表
+ * @param $action           // 动作
+ * @param $data_id          // 数据ID
+ */
+function addOperationLog($admin_id,$admin_type,$table,$action,$data_id)
+{
+    OperationLogModel::addOperationLog($admin_id,$admin_type,$table,$action,$data_id);
+}
+
+/**
+ * 获取城市信息
+ * @return mixed
+ * @throws \think\db\exception\DataNotFoundException
+ * @throws \think\db\exception\ModelNotFoundException
+ * @throws \think\exception\DbException
+ */
 function yzt_get_city_info(){
     $area_info = cache('area_info');
     $city_info = [];
     if(!$area_info){
-        $province = Db::name('city')->where('level',1)->field('id,parent_id,level,name,status')->select()->toArray();
+        $province = CityModel::getProvinceList();
         foreach ($province as $k=>$v){
-            $city = db('city')->where('parent_id',$v['id'])->select()->toArray();
+            $city = CityModel::getCityList($v['id']);
             foreach ($city as $kk=>$vv){
                 $city_info[$kk]['id'] = $vv['id'];
                 $city_info[$kk]['name'] = $vv['name'];
