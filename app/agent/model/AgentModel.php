@@ -10,7 +10,9 @@
 // +----------------------------------------------------------------------
 namespace app\agent\model;
 
+use app\common\model\UserTokenModel;
 use think\Db;
+use think\Exception;
 use think\Model;
 
 class AgentModel extends Model
@@ -19,9 +21,10 @@ class AgentModel extends Model
         'more' => 'array',
     ];
 
+    protected $connection= 'db_daili';
+
     public function doName($user)
     {
-
         $where['account'] = $user['account'];
         $where['type'] = ['in','1,2'];
         $result = $this->where($where)->find();
@@ -43,7 +46,7 @@ class AgentModel extends Model
                     'last_login_ip'   => get_client_ip(0, true),
                 ];
                 $result->where('id', $result["id"])->update($data);
-                $token = cmf_generate_user_token($result["id"], 'web');
+                $token = cmf_generate_user_token($result["id"], UserTokenModel::DEVICE_TYPE_WEB);
                 if (!empty($token)) {
                     session('token', $token);
                 }
@@ -76,6 +79,20 @@ class AgentModel extends Model
             return 0;
         }
         return 1;
+    }
+
+    /**
+     * 通过id获取admin_id
+     * @return mixed
+     * @throws Exception
+     */
+    static public function getAdminIdById($id)
+    {
+        $result = self::where('id',$id)->value('admin_id');
+        if(empty($result)){
+            throw new Exception("找不到当前代理商所归属的业务员！");
+        }
+        return $result;
     }
 
     /**
