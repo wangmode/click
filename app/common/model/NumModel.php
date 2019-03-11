@@ -27,10 +27,11 @@ class NumModel extends Model{
             $keywordx[]= $keywords['keyword'];
         }
 
-        if (empty($data_pcpv) | empty($data_kwc)| empty($data_index)){      //如果empty = 0
+        if (empty($data_pcpv) | empty($data_kwc)| empty($data_index) | empty($keywordx)){      //如果empty = 0
             $data_pcpv[] = 0;
             $data_kwc[] = 0;
             $data_index[] = 0;
+            $keywordx[] = '没有的关键词';
         }
         foreach ($data_index as $val) {     //如果 X 等于 0 则 A = 1
             $baidu_indexnumA = (int)bcmul($val,0.03,3);
