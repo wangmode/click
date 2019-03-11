@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>充值记录</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/layui.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/admin.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/lay/modules/util.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-tab layui-tab-brief">
+            <ul class="layui-tab-title">
+                <li class="layui-this" <a href="{:url('Search/index')}">关键词查询</a></li>
+            </ul>
+        </div>
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <div class="layui-input-inline" style="width:500px;">
+                        <input type="text" name="keyword" id="search" placeholder="请输入关键词" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline search">
+                    <button id="btn" class="layui-btn" data-type="reload" type="button">搜索</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body" style="display:none;">
+            <table id="dataTable" lay-filter="dataTable" width="500px"></table>
+        </div>
+
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $(".search").click(function(){
+                    $(".layui-card-body").css("display","block");
+                });
+            });
+        </script>
+
+        <script>
+
+            layui.config({
+                base: '__TMPL__/public/', //静态资源所在路径
+            }).extend({
+                index: 'lib/index' //主入口模块
+            }).use(['layer','table','form'],function () {
+                var layer = layui.layer;
+                var form = layui.form;
+                var table = layui.table;
+                //用户表格初始化
+                var dataTable = table.render({
+                    elem: '#dataTable'
+                    ,height: 200
+                    ,url: "{:url('Search/data')}" //数据接口
+                    ,response: {
+                        statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+                    }
+                    ,cols: [[ //表头
+                        {field: 'id', title: '关键词'}
+                        ,{field: 'name', title: '百度'}
+                        ,{field: 'type', title: '360'}
+                        ,{field: 'pinyin', title: '搜狗'}
+                        ,{field: 'status', title: '状态'}
+                    ]]
+                });
+                var $ = layui.$, active = {
+                    reload: function(){
+                        var search = $('#search');
+                        //执行重载
+                        table.reload('dataTable', {
+                            where: {
+                                keywords: search.val(),
+                            }
+                        });
+                  }
+                };
+                $('.search .layui-btn').on('click', function(){
+                    var type = $(this).data('type');
+                    active[type] ? active[type].call(this) : '';
+                });
+            });
+            function time2date(t){
+                var t1 = parseInt(t + '000');
+                return layui.util.toDateString(t1);
+            }
+        </script>
+    </div>
+</body>
+</html>
+
+
+
