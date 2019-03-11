@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 namespace app\agent\controller;
 
+use app\common\model\KeywordProductModel;
 use cmf\controller\UserBaseController;
 use \think\Db;
 use app\common\model\ConfigModel as CommonConfigModel;
@@ -45,9 +46,9 @@ class CustomerController extends UserBaseController
             }
             $customer_list = CustomerModel::getKPBCustomerListByAgentId($agent_id,$keywords,$page,$limit);
             $count = CustomerModel::getKPBCustomerCountByAgentId($agent_id,$keywords);
-            return json(['code'=>200,'count'=>$count,'data'=>$customer_list,'message'=>"获取客户信息成功！"]);
+            return $this->returnListJson(self::CODE_OK,$count,$customer_list,"获取客户信息成功！");
         }catch (Exception $exception){
-            return json(['code'=>0,'count'=>0,'data'=>null,'message'=>$exception->getMessage()]);
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
     }
 
@@ -99,9 +100,9 @@ class CustomerController extends UserBaseController
                 throw new Exception($validate);
             }
             CustomerModel::addKPBCustomer($data);
-            return json(['status'=>1,'data'=>null,'message'=>"新建客户成功！"]);
+            return $this->returnJson(self::STATUS_OK,null,"新建客户成功！");
         }catch (Exception $exception){
-            return json(['status'=>0,'data'=>null,'message'=>$exception->getMessage()]);
+            return $this->returnJson(self::STATUS_FAIL,null,$exception->getMessage());
         }
     }
 
@@ -118,55 +119,101 @@ class CustomerController extends UserBaseController
                 throw new Exception($validate);
             }
             CustomerModel::updateKPBCustomer($data);
-            return json(['status'=>1,'data'=>null,'message'=>"更新客户成功！"]);
+            return $this->returnJson(self::STATUS_OK,null,"更新客户成功！");
         }catch (Exception $exception){
             return json(['status'=>0,'data'=>null,'message'=>$exception->getMessage()]);
         }
     }
 
+    /**
+     * 变更客户状态
+     * @return \think\response\Json
+     */
     public function to_disable(){
         $customer_id = $this->request->param('id');
-
-        $customer_info = Db::name('customer')->where('id',$customer_id)->find();
-
-        $deploy= new DeployModel();
-
-        $customer_info['status']==1 ? $status = 2 : $status = 1;
-
-        //修改apache配置
-        $config = $deploy->modify_config($customer_info['format_url'],$customer_info['name'],$customer_info['url_str'],$status);
-        if(!$config){
-            return json(['status'=>0,'msg'=>'操作失败！']);
-        }
-        $re = Db::name('customer')->where('id',$customer_id)->setField('status', $status);
-        if($re){
+        try{
+            $status = CustomerModel::editCustomerStatusById($customer_id);
             return json(['status'=>1,'customer_status'=>$status,'msg'=>'操作成功！']);
-        }else{
-            return json(['status'=>0,'customer_status'=>$status,'msg'=>'操作失败！']);
+        }catch (Exception $exception){
+            return $this->returnJson(self::STATUS_FAIL,null,$exception->getMessage());
         }
     }
 
-    function to_deploy(){
-        $customer_id = $this->request->param('customer_id');
-        $deploy= new DeployModel();
-        $customer_info = Db::name('customer')->where('id',$customer_id)->find();
-        $url = $customer_info['url'];
-
-        if($customer_info['table_password']){
-            $url_data['table_password'] = $customer_info['table_password'];
-            $url_data['name'] = $customer_info['name'];
-            $url_data['url_str'] = $customer_info['url_str'];
-            $url_data['url'] = $customer_info['format_url'];
-        }else{
-            $url_data = $deploy->url_format($url,$customer_id,$customer_info['class']);
+    /**
+     * 客户关键词列表
+     */
+    public function keywordList()
+    {
+        $customer_id = $this->request->param('id');
+        try{
+            if(empty($customer_id)){
+                throw new Exception("非法访问！");
+            }
+            $info = CustomerModel::getCustomerInfoById($customer_id);
+            $this->assign('id',$customer_id);
+            $this->assign('info',$info);
+            return $this->fetch();
+        }catch (Exception $exception){
+            $this->error($exception->getMessage());
         }
-
-        //开始部署
-        $re = $deploy->to_deploy($url_data,$customer_id,1);
-        if($re['status']){
-            //初始化优站通信息
-            $deploy->config_initialize($customer_info,$url_data['name'],$url_data['table_password']);
-        }
-        return $re;
     }
+
+
+    /**
+     * 客户关键词数据
+     */
+    public function keywordData()
+    {
+        $customer_id    = $this->request->param('id',0,'intval');
+        $is_top         = $this->request->param('is_top',null,'intval');
+        $keyword        = $this->request->param('keyword',null,'string');
+        $status         = $this->request->param('status',null,'intval');
+        $limit          = $this->request->param('limit',10,'intval');
+        $page           = $this->request->param('page',1,'intval');
+        try{
+            if(empty($customer_id)){
+                throw new Exception("非法访问！");
+            }
+            $count = KeywordProductModel::getCustomerKeywordCount($customer_id,$keyword,$is_top,$status);
+            $keyword_list = KeywordProductModel::getCustomerKeywordListData($customer_id,$keyword,$is_top,$status,$page,$limit);
+            return $this->returnListJson(self::CODE_OK,$count,$keyword_list,"获取关键词信息成功！");
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
+        }
+    }
+
+
+    /**
+     * 修改关键词状态
+     * @return \think\response\Json
+     */
+    public function keywordToDisable()
+    {
+        $id    = $this->request->param('id',0,'intval');
+        try{
+            $status = KeywordProductModel::updateKeywordStatus($id);
+            return $this->returnStatusJson(self::STATUS_OK,$status,"修改关键词状态成功！");
+        }catch (Exception $exception){
+            return $this->returnStatusJson(self::STATUS_FAIL,null,$exception->getMessage());
+        }
+    }
+
+
+    /**
+     * 删除关键词
+     * @return \think\response\Json
+     */
+    public function deleteKeyword()
+    {
+        $id    = $this->request->param('id',0,'intval');
+        try{
+            $status = KeywordProductModel::delKeywordProduct($id);
+            return $this->returnStatusJson(self::STATUS_OK,$status,"删除关键词成功！");
+        }catch (Exception $exception){
+            return $this->returnStatusJson(self::STATUS_FAIL,null,$exception->getMessage());
+        }
+
+    }
+
+
 }

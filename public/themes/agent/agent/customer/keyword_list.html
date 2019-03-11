@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>客户关键词管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/layui.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/admin.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/lay/modules/util.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <blockquote class="layui-elem-quote">
+                <div class="layui-inline" style="margin-left: 20px;">
+                    <span>联系人：</span>
+                    <span>{$info.linkman}</span>
+                </div>
+                <div class="layui-inline" style="margin-left: 20px;">
+                    <span>联系电话：</span>
+                    <span>{$info.linkphone}</span>
+                </div>
+                <span></span>
+                <div class="layui-inline" style="margin-left: 20px;">
+                    <span>账户余额：</span>
+                    <span>{$info.money}</span>
+                </div>
+                <span></span>
+                <div class="layui-inline" style="margin-left: 20px;">
+                    <span>账号：</span>
+                    <span>{$info.account}</span>
+                </div>
+            </blockquote>
+
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <input type="text" name="keyword" id="search" placeholder="请输入查询关键词" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <select name="status" lay-filter="required">
+                            <option value="">请选择状态</option>
+                            <option value="0">暂停</option>
+                            <option value="1">正常</option>
+                            <option value="2">禁用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <select name="is_top" lay-filter="required">
+                            <option value="">请选择达标状态</option>
+                            <option value="0">未达标</option>
+                            <option value="1">已达标</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline search">
+                    <button class="layui-btn" data-type="reload" type="button">搜索</button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="layui-card-header layuiadmin-card-header-auto" id="component-layer-list">
+            <div class="layadmin-layer-demo">
+                <button class="layui-btn layuiadmin-btn-list" onclick="window_open('添加内容','{:url(\'Customer/add\')}','850','660')">添加关键词</button>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <table id="dataTable" lay-filter="dataTable"></table>
+            <script type="text/html" id="status">
+                {{#  if(d.status === 0){ }}
+                    暂停
+                {{#  } else if(d.status === 1) { }}
+                    正常
+                {{#  } else if(d.status === 2) { }}
+                    禁用
+                {{#  } else { }}
+                    错误
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="is_top">
+                {{#  if(d.is_top === 0){ }}
+                    已达标
+                {{#  } else if(d.is_top === 1) { }}
+                    未达标
+                {{#  } else { }}
+                    错误
+                {{#  } }}
+            </script>
+            <script type="text/html" id="options">
+                <div class="layui-btn-group">
+                    {{#  if(d.status === 0){ }}
+                        <button class="layui-btn layui-btn-sm layui-btn-disabled" id="button{{d.id}}" type="button"  lay-event="disable">暂停</button>
+                    {{#  } else if(d.is_top === 1) { }}
+                        <button class="layui-btn layui-btn-sm layui-btn-danger" id="button{{d.id}}" type="button"  lay-event="disable">暂停</button>
+                    {{#  } }}
+                </div>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-sm layui-btn-danger" id="button{{d.id}}" type="button"  lay-event="delete">删除</button>
+                </div>
+            </script>
+        </div>
+        <script>
+            layui.config({
+                base: '__TMPL__/public/', //静态资源所在路径
+            }).extend({
+                index: 'lib/index' //主入口模块
+            }).use(['layer','table','form'],function () {
+                var layer = layui.layer;
+                var form = layui.form;
+                var table = layui.table;
+                //用户表格初始化
+                var dataTable = table.render({
+                    elem: '#dataTable'
+                    ,url: "{:url('Customer/keywordData',array('id'=>$id))}" //数据接口
+                    ,page: true //开启分页
+                    ,response: {
+                        statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+                    }
+                    ,cols: [[ //表头
+                        {field: 'keyword', title: '关键词'}
+                        ,{field: 'product_name', title: '产品'}
+                        ,{field: 'cost', title: '费用'}
+                        ,{field: 'ranking', title: '排名'}
+                        ,{field: 'billing_time', title: '套餐天数'}
+                        ,{field: 'day_num', title: '计费天数'}
+                        ,{field: 'is_top', title: '是否计费',toolbar: '#is_top'}
+                        ,{field: 'status', title: '状态',toolbar: '#status'}
+                        ,{fixed: 'right', title: '操作',width: 250, align:'left', toolbar: '#options'}
+                    ]]
+                });
+
+                //监听行工具事件
+                table.on('tool(dataTable)', function(obj){
+                    var data = obj.data;
+                    if(obj.event === 'disable'){
+                        yzt_to_disable(data.id,"{:url('Customer/keywordToDisable')}");
+                        layui.table.reload('dataTable');
+                    }else if(obj.event === 'delete'){
+                        yzt_to_disable(data.id,"{:url('Customer/deleteKeyword')}");
+                        layui.table.reload('dataTable');
+                    }
+                });
+                var $ = layui.$, active = {
+                    reload: function(){
+                        var search = $('#search');
+                        //执行重载
+                        table.reload('dataTable', {
+                            page: {
+                                curr: 1 //重新从第 1 页开始
+                            },
+                            where: {
+                                keyword: search.val(),
+                                status:$("select[name='status']").find("option:selected").val(),
+                                is_top:$("select[name='is_top']").find("option:selected").val()
+                            }
+                        });
+                    }
+                };
+                $('.search .layui-btn').on('click', function(){
+                    var type = $(this).data('type');
+                    active[type] ? active[type].call(this) : '';
+                });
+            });
+
+
+        </script>
+    </div>
+</div>
+</body>
+</html>
+
+
+
