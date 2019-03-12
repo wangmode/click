@@ -24,6 +24,8 @@ class KeywordProductModel extends Model
     const STATUS_NORMAL     = 1 ; // 正常
     const STATUS_DISABLE    = 2 ; // 禁用
 
+    static private $billing_days = [1=>90,2=>180,3=>360];
+
 
     /**
      * 获取客户关键词总数
@@ -95,7 +97,6 @@ class KeywordProductModel extends Model
                 ->limit($start,$limit)
                 ->order('kp.id desc')
                 ->group('c.source_id')
-//                ->buildSql();
                 ->select();
 
     }
@@ -208,6 +209,77 @@ class KeywordProductModel extends Model
     static public function getKeywordStatus($id)
     {
         return self::where('id',$id)->value('status');
+    }
+
+    /**
+     * 获取套餐天数
+     * @param null $key
+     * @return array|mixed
+     */
+    static public function getBillingDays($key=null)
+    {
+        $days = is_null($key)?self::$billing_days:self::$billing_days[$key];
+        return $days;
+    }
+
+
+    /**
+     *
+     * @param $admin_id
+     * @param $keyword
+     * @param $data
+     * @param $page
+     * @param $limit
+     * @throws Exception
+     */
+    static public function newKeywordProduct($admin_id,$keyword,$data,$page,$limit)
+    {
+        $gettingKeywrod = new GettingKeywordModel();
+        $list = $gettingKeywrod->getKeywordListData($admin_id,$keyword,$page,$limit);
+        foreach ($data['keyword_list'] as $key=>$val){
+            $info = [];
+            if(!isset($list[$val['keywrod_key']]['keywrod']) || empty($list[$val['keywrod_key']]['keywrod'])){
+                throw new Exception('数据错误，请重新挖掘关键词！');
+            }
+            $info['agent_id']       = $admin_id;
+            $info['customer_id']    = $data['customer_id'];
+            $info['billing_time']   = self::getBillingDays($val['billing_time']);
+            $info['keyword_id']     = KeywrodModel::addKeyword( $list[$val['keywrod_key']]['keywrod'],$data['customer_id'],$data['url']);
+            if(empty($info['keyword_id'])){
+                throw new Exception('关键词添加失败，请重试！');
+            }
+            $basics_price = KeywordPriceModel::getBasicsPrice($list[$val['keywrod_key']]['baidu_index'],$list[$val['keywrod_key']]['bidword_kwc'],$list[$val['keywrod_key']]['bidword_pcpv']);
+            foreach ($val['product'] as $k=>$v){
+                $info['product_id'] =  $v;
+                $coefficient = ProductModel::getProductCoefficientById($v);
+                $info['money'] =  bcmul($coefficient,$basics_price,2);
+                self::addKeywordProduct($info);
+            }
+        }
+    }
+
+
+
+
+    /**
+     * 新增关键词产品数据
+     * @param $data
+     * @return int|string
+     */
+    static public function addKeywordProduct($data)
+    {
+        return self::insert([
+                'money'         =>$data['money']
+                ,'agent_id'     =>$data['agent_id']
+                ,'product_id'   =>$data['product_id']
+                ,'keyword_id'   =>$data['keyword_id']
+                ,'customer_id'  =>$data['customer_id']
+                ,'billing_time' =>$data['billing_time']
+                ,'is_del'       =>self::IS_DEL_NO
+                ,'is_top'       =>self::IS_TOP_NO
+                ,'status'       =>self::STATUS_NORMAL
+                ,'creation_at'  =>date('Y-m-d H:i:s',time())
+            ]);
     }
 
 
