@@ -67,17 +67,16 @@
                 //用户表格初始化
                 var dataTable = table.render({
                     elem: '#dataTable'
-                    ,url: "{:url('Consumption/getAgentData')}" //数据接口
+                    ,url: "{:url('Consumption/getCustomerData',array('time'=>$time))}" //数据接口
                     ,page: true //开启分页
                     ,response: {
                         statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
                     }
                     ,cols: [[ //表头
-                        {field: 'xuhao', title: '序号',type:'numbers',align:'center'}
-                        ,{field: 'number', title: '关键词数/总数',align:'center'}
-                        ,{field: 'time', title: '扣费日期',align:'center'}
-                        ,{field: 'c_moeny', title: '消费金额',align:'center'}
-                        ,{field: 'balance', title: '剩余费用',align:'center'}
+                        {field: 'company', title: '客户名称',align:'center'}
+                        ,{field: 'keyword', title: '关键词',align:'center'}
+                        ,{field: 'total_money', title: '总扣费',align:'center'}
+                        ,{field: 'money_all', title: '总消费金额',align:'center'}
                         ,{fixed: 'right', title: '操作', align:'center', toolbar: '#options'}
                     ]]
                 });
