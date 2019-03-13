@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 namespace app\agent\model;
 
+use app\common\model\ConsumeErrorLogModel;
+use ConsumeException;
 use app\common\model\UserTokenModel;
 use think\Db;
 use think\Exception;
@@ -20,6 +22,9 @@ class AgentModel extends Model
     protected $type = [
         'more' => 'array',
     ];
+
+    const LEVEL_ONE = 1;
+    const LEVEL_TWO = 2;
 
     protected $connection= 'db_daili';
 
@@ -63,10 +68,13 @@ class AgentModel extends Model
     }
 
     /**
-     * 通过邮箱重置密码
+     *通过邮箱重置密码
      * @param $email
      * @param $password
      * @return int
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function emailPasswordReset($email, $password)
     {
@@ -100,6 +108,11 @@ class AgentModel extends Model
      * @param $mobile
      * @param $password
      * @return int
+     * @throws Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function mobilePasswordReset($mobile, $password)
     {
@@ -134,9 +147,14 @@ class AgentModel extends Model
     }
 
     /**
-     * 用户密码修改
+     *用户密码修改
      * @param $user
      * @return int
+     * @throws Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function editPassword($user)
     {
@@ -202,4 +220,6 @@ class AgentModel extends Model
         cmf_update_current_user($userInfo);
         return 0;
     }
+
 }
+
