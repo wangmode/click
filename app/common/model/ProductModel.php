@@ -30,6 +30,29 @@ class ProductModel extends Model
         return self::where('status',self::STATUS_NORMAL)->select()->toArray();
     }
 
+    /**
+     * 通过ID 获取产品
+     * @param $id
+     * @return array|false|\PDOStatement|string|Model
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    static public function getProductById($id)
+    {
+        return self::where('status',self::STATUS_NORMAL)->where('id',$id)->find();
+    }
+
+    /**
+     * 获取指定产品系数
+     * @param $id
+     * @return mixed
+     */
+    static public function getProductCoefficientById($id)
+    {
+        return self::where('status',self::STATUS_NORMAL)->where('id',$id)->value('coefficient');
+    }
+
 
     /**
      * //指定关键词获取产品价格列表
