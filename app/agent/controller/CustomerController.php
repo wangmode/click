@@ -11,6 +11,7 @@
 namespace app\agent\controller;
 
 use app\common\model\KeywordProductModel;
+use app\common\model\GettingKeywordModel;
 use cmf\controller\UserBaseController;
 use \think\Db;
 use app\common\model\ConfigModel as CommonConfigModel;
@@ -39,7 +40,7 @@ class CustomerController extends UserBaseController
         $page = $this->request->param('page',1,'number');
         $limit= $this->request->param('limit',10,'number');
         $keywords = $this->request->param('keywords',1,'string');
-        $agent_id = cmf_get_current_user()['id'];
+        $agent_id = cmf_get_current_user_id();
         try{
             if(empty($agent_id)){
                 throw new Exception("非法访问!");
@@ -93,7 +94,7 @@ class CustomerController extends UserBaseController
     public function addPost()
     {
         $data      = $this->request->param();
-        $data['agent_id'] = cmf_get_current_user()['id'];
+        $data['agent_id'] = cmf_get_current_user_id();
         $validate = $this->validate($data,'CustomerKPB.add');
         try{
             if($validate !== true){
@@ -112,7 +113,7 @@ class CustomerController extends UserBaseController
     public function editPost()
     {
         $data      = $this->request->param();
-        $data['agent_id'] = cmf_get_current_user()['id'];
+        $data['agent_id'] = cmf_get_current_user_id();
         $validate = $this->validate($data,'CustomerKPB.edit');
         try{
             if($validate !== true){
@@ -213,6 +214,44 @@ class CustomerController extends UserBaseController
             return $this->returnStatusJson(self::STATUS_FAIL,null,$exception->getMessage());
         }
 
+    }
+
+    /**
+     * 挖掘关键词
+     * @return \think\response\Json
+     */
+    public function excavateKeywords()
+    {
+        $keyword    = $this->request->param('keyword','','string');
+        $limit      = $this->request->param('limit',10,'intval');
+        $page       = $this->request->param('page',1,'intval');
+        $agent_id   = cmf_get_current_user_id();
+        try{
+            $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id,$keyword,$page,$limit);
+            return $this->returnListJson(self::CODE_OK,$keyword_list['count'],$keyword_list['list'],"获取关键词信息成功！");
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
+        }
+    }
+
+
+    /**
+     * 添加新的关键词
+     * @return \think\response\Json
+     */
+    public function addKeywords()
+    {
+        $keyword    = $this->request->param('keyword','','string');
+        $limit      = $this->request->param('limit',10,'intval');
+        $page       = $this->request->param('page',1,'intval');
+        $data       = $this->request->param();
+        $agent_id   = cmf_get_current_user_id();
+        try{
+            KeywordProductModel::newKeywordProduct($agent_id,$keyword,$data,$page,$limit);
+            return $this->returnJson(self::STATUS_OK,null,'添加关键词成功！');
+        }catch (Exception $exception){
+            return $this->returnJson(self::STATUS_FAIL,null,'添加关键词失败！');
+        }
     }
 
 
