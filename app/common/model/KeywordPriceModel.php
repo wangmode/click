@@ -53,6 +53,4 @@ class KeywordPriceModel extends Model
         return $product;
     }
 
-
-
 }
