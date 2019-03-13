@@ -12,6 +12,7 @@ namespace app\agent\controller;
 
 use app\common\model\KeywordProductModel;
 use app\common\model\GettingKeywordModel;
+use app\common\model\ProductModel;
 use cmf\controller\UserBaseController;
 use \think\Db;
 use app\common\model\ConfigModel as CommonConfigModel;
@@ -31,6 +32,15 @@ class CustomerController extends UserBaseController
     {
         $type = $this->request->param('type')?:2;
         $this->assign('type',$type);
+        return $this->fetch();
+    }
+
+    /**
+     * 添加关键词列表
+     */
+    public function keyword_add(){
+        $product_list = ProductModel::getProductList();
+        $this->assign('product',$product_list);
         return $this->fetch();
     }
 
@@ -177,6 +187,7 @@ class CustomerController extends UserBaseController
             }
             $count = KeywordProductModel::getCustomerKeywordCount($customer_id,$keyword,$is_top,$status);
             $keyword_list = KeywordProductModel::getCustomerKeywordListData($customer_id,$keyword,$is_top,$status,$page,$limit);
+            var_dump($keyword_list);die;
             return $this->returnListJson(self::CODE_OK,$count,$keyword_list,"获取关键词信息成功！");
         }catch (Exception $exception){
             return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
@@ -227,8 +238,11 @@ class CustomerController extends UserBaseController
         $page       = $this->request->param('page',1,'intval');
         $agent_id   = cmf_get_current_user_id();
         try{
-            $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id,$keyword,$page,$limit);
-            return $this->returnListJson(self::CODE_OK,$keyword_list['count'],$keyword_list['list'],"获取关键词信息成功！");
+            if(!empty($keyword)){
+                $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id,$keyword,$page,$limit);
+                return $this->returnListJson(self::CODE_OK,$keyword_list['count'],$keyword_list['list'],"获取关键词信息成功！");
+            }
+            return $this->returnListJson(self::CODE_OK,0,[],"获取关键词信息成功！");
         }catch (Exception $exception){
             return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
