@@ -27,7 +27,7 @@ class ProductModel extends Model
      */
     static public function getProductList()
     {
-        return self::where('status',self::STATUS_NORMAL)->select();
+        return self::where('status',self::STATUS_NORMAL)->select()->toArray();
     }
 
 
@@ -41,7 +41,7 @@ class ProductModel extends Model
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getProductPriceList($baidu_index, $bidword_kwc, $bidword_pcpv)
+    static public function getProductPriceList($baidu_index, $bidword_kwc, $bidword_pcpv)
     {
         $product_list = self::getProductList();
         $basics_price = KeywordPriceModel::getBasicsPrice($baidu_index, $bidword_kwc, $bidword_pcpv);

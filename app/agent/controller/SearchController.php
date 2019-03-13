@@ -12,24 +12,56 @@ namespace app\agent\controller;
 
 use cmf\controller\UserBaseController;
 use app\agent\model\SearchModel;
-use \think\Db;
+use app\common\model\Keywords;
+use app\common\model\ProductModel;
 
+/**
+ * Class SearchController
+ * $X = baidu_index //百度指数
+ * $Y = bidword_kwc //竞争激烈度
+ * $Z = bidword_pcpv //百度PC检索量
+ */
 class SearchController extends UserBaseController {
-    public function index(){
-
+    public function index()
+    {
+        $product = ProductModel::getProductList();
+        $this->assign('product',$product);
         return $this->fetch();
     }
 
     public function data(){
         $info = $this->request->param();
+        $keywords = new Keywords();
 
-        $search = new SearchModel();
-        $datas = $search->Search('keyword' , $info['keywords']);
+        if (!empty($info['keywords'])){
+             $datas = $keywords->getKeywordList('1', $info['keywords'], "1", '10');
 
+            if (!empty($datas['list'])) {
+                $data = $keywords->getKeyword($datas , $info['keywords']);
+            }else {
+                $data = [];
+            }
+             return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
+        }else {
+            $data = [];
+            return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
+        }
 
-        $data['code'] = 200;
-        $data['message'] = '';
-        $data['data'] = $datas;
-        return json($data);
+    }
+
+    public function datas()
+    {
+        $info = $this->request->param();
+        $keywords = new Keywords();
+        if (!empty($info['keywords'])) {
+            $page = $info['page'];
+            $limit = $info['limit'];
+            $result = $keywords->getKeywordList('1', $info['keywords'], "$page", "$limit");
+            $count = array_sum($result);
+            return $this->returnListJson(self::CODE_OK, "$count", $result['list'], '返回搜索数据');
+        }else {
+            $data = [];
+            return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
+        }
     }
 }

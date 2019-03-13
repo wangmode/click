@@ -17,9 +17,6 @@
 <div class="layui-fluid">
     <div class="layui-card">
         <div class="layui-tab layui-tab-brief">
-            <ul class="layui-tab-title">
-                <li class="layui-this" <a href="{:url('Search/index')}">关键词查询</a></li>
-            </ul>
         </div>
         <div class="layui-form layui-card-header layuiadmin-card-header-auto">
             <div class="layui-form-item">
@@ -35,14 +32,45 @@
             </div>
         </div>
 
-        <div class="layui-card-body" style="display:none;">
-            <table id="dataTable" lay-filter="dataTable" width="500px"></table>
+        <div class="tabledata" style="visibility:hidden;height:0px">
+            <div class="layui-card-body">
+                <table id="dataTable" lay-filter="dataTable" width="500px"></table>
+                <volist  name="product" id='v2'>
+                    <script type="text/html" id="price2_{$v2.id}">
+                        {{# for (var i = 0,len = d.price.length;i < len ; i++ ){ }}
+                        {{# if ({$v2.id} == d.price[i]['id']) {}}
+                        {{d.price[i]['price']}} 元
+                        {{# }}}
+                        {{# }}}
+                    </script>
+                </volist>
+                <div class="layui-tab layui-tab-brief">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this" <a href="{:url('Search/index')}">同行都在做</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="layui-card-body table2">
+                <table id="dataTables" lay-filter="dataTables" width="500px"></table>
+                <volist  name="product" id='v'>
+                    <script type="text/html" id="price_{$v.id}">
+                        {{# for (var j = 0,len = d.price.length;j < len ; j++ ){ }}
+                            {{# if ({$v.id} == d.price[j]['id']) {}}
+                                {{d.price[j]['price']}} 元
+                            {{# }}}
+                        {{# }}}
+                    </script>
+                </volist>
+
+            </div>
         </div>
 
         <script type="text/javascript">
             $(document).ready(function(){
                 $(".search").click(function(){
-                    $(".layui-card-body").css("display","block");
+                    $(".tabledata").css("visibility","visible");
+                    $(".tabledata").css("height","100%");
                 });
             });
         </script>
@@ -60,33 +88,62 @@
                 //用户表格初始化
                 var dataTable = table.render({
                     elem: '#dataTable'
-                    ,height: 200
+                    ,height: 80
                     ,url: "{:url('Search/data')}" //数据接口
                     ,response: {
                         statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
                     }
                     ,cols: [[ //表头
-                        {field: 'id', title: '关键词'}
-                        ,{field: 'name', title: '百度'}
-                        ,{field: 'type', title: '360'}
-                        ,{field: 'pinyin', title: '搜狗'}
-                        ,{field: 'status', title: '状态'}
+                        {field: 'keyword',width:187  , title: '关键词'}
+                        <volist  name="product" id='v2'>
+                        ,{field: 'price', title: "{$v2.name}" , width:289 , toolbar: "#price2_{$v2.id}"}
+                        </volist>
                     ]]
                 });
+
+                var dataTables = table.render({
+                    elem: '#dataTables'
+                    ,height:500
+                    ,page: true //开启分页
+                    ,url: "{:url('Search/datas')}" //数据接口
+                    ,response: {
+                        statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
+                    }
+                    ,cols: [[ //表头
+                        {field: 'keyword',width:187 , title: '关键词'}
+                        <volist  name="product" id='v'>
+                        ,{field: 'price', title: "{$v.name}" , width:289 , toolbar: "#price_{$v.id}"}
+                        </volist>
+                    ]]
+                });
+
                 var $ = layui.$, active = {
                     reload: function(){
                         var search = $('#search');
                         //执行重载
-                        table.reload('dataTable', {
+                        table.reload('dataTable' , {
                             where: {
                                 keywords: search.val(),
                             }
                         });
-                  }
+                    }
+                };
+
+                var $ = layui.$, actives = {
+                    reload: function(){
+                        var search = $('#search');
+                        //执行重载
+                        table.reload('dataTables' , {
+                            where: {
+                                keywords: search.val(),
+                            }
+                        });
+                    }
                 };
                 $('.search .layui-btn').on('click', function(){
                     var type = $(this).data('type');
                     active[type] ? active[type].call(this) : '';
+                    actives[type] ? actives[type].call(this) : '';
                 });
             });
             function time2date(t){
