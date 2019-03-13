@@ -21,15 +21,19 @@ class CustomerConsumeRecordModel extends Model
      * @return string
      * @throws \think\exception\DbException
      */
-    static public function getSubsql($source_id=null){
-        $where = [];
-        if(!empty($source_id)){
-            $where['source_id'] = $source_id;
-        }
-        return self::where($where)
+    static public function getSubsql($source_id){
+        return self::where('source_id',$source_id)
                 ->field(['count(*) as days','source_id'])
                 ->group('to_days(time)')
                 ->buildSql();
+    }
+
+    static public function getCustomerNum($source_id)
+    {
+        return self::where('source_id',$source_id)
+                    ->field(['count(*) as days','source_id'])
+                    ->group('to_days(time)')
+                    ->count();
     }
 
 

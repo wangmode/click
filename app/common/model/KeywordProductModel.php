@@ -89,20 +89,22 @@ class KeywordProductModel extends Model
             $where['kp.status'] =$status;
         }
         $start = ($page-1)*$limit;
-        $subsql  = CustomerConsumeRecordModel::getSubsql();
-        return self::alias('kp')
+
+        $keyword_list =  self::alias('kp')
                 ->join('keyword k','kp.keyword_id = k.id')
                 ->join('product p','kp.product_id = p.id')
-                ->join([$subsql=>'c'],'kp.id = c.source_id','left')
-                ->field(['k.keyword','p.name as product_name','kp.billing_time','kp.money as cost','kp.status','kp.is_top','count(c.days) as day_num','kp.ranking','kp.id'])
+                ->field(['k.keyword','p.name as product_name','kp.billing_time','kp.money as cost','kp.status','kp.is_top','kp.ranking','kp.id'])
                 ->where($where)
                 ->where('kp.customer_id',$customer_id)
                 ->where('kp.is_del',self::IS_DEL_NO)
                 ->limit($start,$limit)
                 ->order('kp.id desc')
-                ->group('c.source_id')
                 ->select();
 
+        foreach ($keyword_list as $key=>$value){
+            $keyword_list[$key]['days']= CustomerConsumeRecordModel::getCustomerNum($value['id']);
+        }
+        return $keyword_list;
     }
 
 
@@ -130,6 +132,7 @@ class KeywordProductModel extends Model
 
         return self::alias('kp')
             ->join('keyword k','kp.keyword_id = k.id')
+            ->join('product p','kp.product_id = p.id')
             ->where($where)
             ->where('kp.customer_id',$customer_id)
             ->where('kp.is_del',self::IS_DEL_NO)
