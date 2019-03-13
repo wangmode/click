@@ -31,16 +31,55 @@ class OperationLogModel extends Model
      * @param $action           // 动作
      * @param $data_id          // 数据ID
      */
-    static public function addOperationLog($admin_id,$admin_type,$table,$action,$data_id)
+    static private function addOperationLog($admin_id,$admin_type,$table,$action,$data_id,$data)
     {
         self::insert([
-            'admin_id'=>$admin_id,
-            'admin_type'=>$admin_type,
-            'table'=>$table,
-            'action'=>$action,
-            'data_id'=>$data_id,
-            'time'=>date('Y-m-d H:i:s',time())
+            'table'         =>$table,
+            'action'        =>$action,
+            'data_id'       =>$data_id,
+            'admin_id'      =>$admin_id,
+            'admin_type'    =>$admin_type,
+            'data'          =>json_encode($data),
+            'time'          =>date('Y-m-d H:i:s',time())
         ]);
     }
+
+    /**
+     * 添加管理员操作日志
+     * @param $table
+     * @param $action
+     * @param $data_id
+     */
+    static public function adminAddOperationLog($table,$action,$data_id,$data)
+    {
+        $admin_id = cmf_get_current_admin_id();
+        self::addOperationLog($admin_id,self::ADMIN_TYPE_ADMIN,$table,$action,$data_id,$data);
+    }
+
+    /**
+     * 添加代理商操作日志
+     * @param $table
+     * @param $action
+     * @param $data_id
+     */
+    static public function agentAddOperationLog($table,$action,$data_id,$data)
+    {
+        $admin_id = cmf_get_current_user_id();
+        self::addOperationLog($admin_id,self::ADMIN_TYPE_AGENT,$table,$action,$data_id,$data);
+    }
+
+    /**
+     * 添加客户操作日志
+     * @param $table
+     * @param $action
+     * @param $data_id
+     */
+    static public function customerAddOperationLog($table,$action,$data_id,$data)
+    {
+        $admin_id = cmf_get_current_user_id();
+        self::addOperationLog($admin_id,self::ADMIN_TYPE_CUSTOMER,$table,$action,$data_id,$data);
+    }
+
+
 
 }

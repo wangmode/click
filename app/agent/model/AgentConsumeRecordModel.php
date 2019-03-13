@@ -7,7 +7,11 @@
  */
 namespace app\agent\model;
 
+use app\common\model\ConsumeErrorLogModel;
+use app\common\model\KeywordProductModel;
 use think\Db;
+use think\Exception;
+use ConsumeException;
 use think\Model;
 
 class AgentConsumeRecordModel extends Model
@@ -16,12 +20,20 @@ class AgentConsumeRecordModel extends Model
     const IS_DEL_YES = 1; //已删除
 
 
+    static private $agent_cost = [
+        AgentModel::LEVEL_ONE => 2.00,
+        AgentModel::LEVEL_TWO => 5.00
+    ];
+
+
+
     /**
      * 获取代理人消费信息
      * @param $agentId
-     * @return mixed
-     * @throws \think\db\exception\BindParamException
-     * @throws \think\exception\PDOException
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getAgentData($agentId)
     {

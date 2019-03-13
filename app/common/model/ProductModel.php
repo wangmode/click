@@ -27,7 +27,7 @@ class ProductModel extends Model
      */
     static public function getProductList()
     {
-        return self::where('status',self::STATUS_NORMAL)->select();
+        return self::where('status',self::STATUS_NORMAL)->select()->toArray();
     }
 
     /**

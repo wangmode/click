@@ -9,7 +9,9 @@
 namespace app\common\model;
 
 
+use ConsumeException;
 use think\Exception;
+use think\exception\PDOException;
 use think\Model;
 
 class KeywordProductModel extends Model
@@ -23,6 +25,8 @@ class KeywordProductModel extends Model
     const STATUS_PAUSE      = 0 ; // 暂停
     const STATUS_NORMAL     = 1 ; // 正常
     const STATUS_DISABLE    = 2 ; // 禁用
+
+    const TABLE             = 'keyword_product';
 
     static private $billing_days = [1=>90,2=>180,3=>360];
 
@@ -85,20 +89,22 @@ class KeywordProductModel extends Model
             $where['kp.status'] =$status;
         }
         $start = ($page-1)*$limit;
-        $subsql  = CustomerConsumeRecordModel::getSubsql();
-        return self::alias('kp')
+
+        $keyword_list =  self::alias('kp')
                 ->join('keyword k','kp.keyword_id = k.id')
                 ->join('product p','kp.product_id = p.id')
-                ->join([$subsql=>'c'],'kp.id = c.source_id','left')
-                ->field(['k.keyword','p.name as product_name','kp.billing_time','kp.money as cost','kp.status','kp.is_top','count(c.days) as day_num','kp.ranking','kp.id'])
+                ->field(['k.keyword','p.name as product_name','kp.billing_time','kp.money as cost','kp.status','kp.is_top','kp.ranking','kp.id'])
                 ->where($where)
                 ->where('kp.customer_id',$customer_id)
                 ->where('kp.is_del',self::IS_DEL_NO)
                 ->limit($start,$limit)
                 ->order('kp.id desc')
-                ->group('c.source_id')
                 ->select();
 
+        foreach ($keyword_list as $key=>$value){
+            $keyword_list[$key]['days']= CustomerConsumeRecordModel::getCustomerNum($value['id']);
+        }
+        return $keyword_list;
     }
 
 
@@ -126,6 +132,7 @@ class KeywordProductModel extends Model
 
         return self::alias('kp')
             ->join('keyword k','kp.keyword_id = k.id')
+            ->join('product p','kp.product_id = p.id')
             ->where($where)
             ->where('kp.customer_id',$customer_id)
             ->where('kp.is_del',self::IS_DEL_NO)
@@ -140,21 +147,40 @@ class KeywordProductModel extends Model
      */
     static public function updateKeywordStatus($id)
     {
-        $keyword_info = self::checkKeywordCostDays($id);
-        if(empty($keyword_info)){
-            throw new Exception("套餐尚未到期！$id");
-        }
+        $keyword_info= self::getKeywordInfo($id);
         if($keyword_info['status'] == self::STATUS_NORMAL){
             $status = self::STATUS_PAUSE;
+            $keyword_bool = self::checkKeywordCostDays($id);
+            if(empty($keyword_bool)){
+                throw new Exception("套餐尚未到期！");
+            }
         }else if($keyword_info['status'] == self::STATUS_PAUSE){
+            $agent = AgentModel::getAgentMoneyById($keyword_info['agent_id']);
+            $cost =  AgentConsumeRecordModel::getAgentCost($agent['level']);
+            if(bccomp($cost,$agent['money'],2) == 1){
+                throw new Exception("您的余额不足，请充值！");
+            }
             $status = self::STATUS_NORMAL;
         }else{
             throw new Exception("套餐已被禁用！");
         }
-        return self::update([
+        $status = self::update([
                         'id'        =>$id,
                         'status'    =>$status
                     ])->value('status');
+        OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_UPDATE,$id,['status'=>$status]);
+        return $status;
+    }
+
+
+    /**
+     * 变更关键词首页状态
+     * @param $id
+     * @return KeywordProductModel
+     */
+    public function updateKeywordProductIsTop($id,$ranking)
+    {
+        return self::where('id',$id)->where('status',self::STATUS_NORMAL)->update(['is_top'=>self::IS_TOP_YES,'ranking'=>$ranking]);
     }
 
     /**
@@ -195,20 +221,30 @@ class KeywordProductModel extends Model
         if($keyword_info['status'] == self::STATUS_NORMAL){
             throw new Exception('请先暂停关键词！');
         }
-        return self::update([
-            'id'        =>$id,
-            'is_del'    =>self::IS_DEL_YES
-        ]);
+        $del = self::update([
+                'id'        =>$id,
+                'is_del'    =>self::IS_DEL_YES
+            ]);
+        OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_DEL,$id,['is_del'=>self::IS_DEL_YES]);
+        return $del;
+    }
+
+    static public function disableKeywordProductByAgentId($agent_id)
+    {
+        return self::where('agent_id',$agent_id)->update(['status'=>self::STATUS_DISABLE]);
     }
 
     /**
      * 通过ID 获取关键词状态
      * @param $id
-     * @return mixed
+     * @return array|false|\PDOStatement|string|Model
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
-    static public function getKeywordStatus($id)
+    static public function getKeywordInfo($id)
     {
-        return self::where('id',$id)->value('status');
+        return self::where('id',$id)->where('is_del',self::IS_DEL_NO)->where('is_top',self::IS_TOP_YES)->field(['status','money','agent_id','customer_id'])->find();
     }
 
     /**
@@ -253,8 +289,52 @@ class KeywordProductModel extends Model
                 $info['product_id'] =  $v;
                 $coefficient = ProductModel::getProductCoefficientById($v);
                 $info['money'] =  bcmul($coefficient,$basics_price,2);
-                self::addKeywordProduct($info);
+                $keywrodProduct_id = self::addKeywordProduct($info);
+                OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_ADD,$keywrodProduct_id ,$info);
             }
+        }
+    }
+
+
+    /**
+     * 获取当前产品套餐信息并变更首页状态
+     * @param $id
+     * @param $ranking
+     * @return array|false|\PDOStatement|string|Model
+     * @throws ConsumeException
+     */
+    static public function changeKeywordProductIsTop($id,$ranking)
+    {
+        try{
+            $keywrod_info = self::getKeywordInfo($id);
+            self::updateKeywordProductIsTop($id,$ranking);
+            if(empty($keywrod_info)){
+                throw new Exception('获取不到当前产品信息！');
+            }
+            return $keywrod_info;
+        }catch (Exception $exception){
+            throw new ConsumeException($exception->getMessage(),ConsumeErrorLogModel::TYPE_PRODUCT,$id);
+        }
+    }
+
+
+    /**
+     * 添加关键词套餐扣费记录
+     * @param $id           //关键词产品套餐ID
+     * @param $ranking      //关键词产品套餐当前名次
+     * @throws PDOException
+     */
+    static public function keywordProductPayment($id,$ranking)
+    {
+        try{
+            self::startTrans();
+            $keywrod_info = self::changeKeywordProductIsTop($id,$ranking);
+            AgentConsumeRecordModel::agentPaymentLog($keywrod_info['agent_id'],$id);
+            CustomerConsumeRecordModel::customerPaymentLog($keywrod_info['customer_id'],$keywrod_info['money'],$id);
+            self::commit();
+        }catch (ConsumeException $exception){
+            self::rollback();
+            $exception->addConsumeErrorLog();
         }
     }
 
@@ -268,7 +348,7 @@ class KeywordProductModel extends Model
      */
     static public function addKeywordProduct($data)
     {
-        return self::insert([
+        return self::insertGetId([
                 'money'         =>$data['money']
                 ,'agent_id'     =>$data['agent_id']
                 ,'product_id'   =>$data['product_id']
