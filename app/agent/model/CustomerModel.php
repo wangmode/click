@@ -203,7 +203,7 @@ class CustomerModel extends Model
                                 ->where($where)
                                 ->where('c.type',self::TYPE_KPB)
                                 ->where('c.agent_id = :agent_id or a.pid = :p_id ',['agent_id'=>$agent_id,'p_id'=>$agent_id])
-                                ->field(['c.id','c.company','c.linkman','c.linkphone','c.money','a.company as agent_name'])
+                                ->field(['c.id','c.company','c.linkman','c.linkphone','c.money','a.company as agent_name','c.status'])
                                 ->limit($start,$limit)
                                 ->select();
 

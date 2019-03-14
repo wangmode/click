@@ -43,18 +43,23 @@
                     <button class="layui-btn layui-btn-sm" type="button" lay-event="edit">编辑</button>
                 </div>
                 <div class="layui-btn-group">
-                    <!--<a class="layui-btn layui-btn-sm"  lay-href="/agent/Customer/keywordList/id/{{d.id}}">详情</a>-->
-                    <!--<a lay-href="{:url('setting/password')}">修改密码</a>-->
-                    <button class="layui-btn layui-btn-sm" type="button" lay-event="keyword">详情</button>
+                    <button class="layui-btn layui-btn-sm" type="button" lay-event="keyword">关键词列表</button>
                 </div>
+                <!--<div class="layui-btn-group">-->
+                    <!--<a class="layui-btn layui-btn-sm layui-btn-normal" target="_blank" href="{{d.url}}/admin">后台</a>-->
+                <!--</div>-->
                 <div class="layui-btn-group">
-                    <a class="layui-btn layui-btn-sm layui-btn-normal" target="_blank" href="{{d.url}}/admin">后台</a>
-
-
+                    <button class="layui-btn layui-btn-sm layui-btn-normal" target="_blank" onclick="renew({{d.id}})">充值</button>
                 </div>
+
                 <div class="layui-btn-group">
+                    {{#  if(d.status === 1){ }}
                     <button class="layui-btn layui-btn-sm layui-btn-danger" id="button{{d.id}}" type="button"  lay-event="disable">禁用</button>
+                    {{#  } else { }}
+                    <button class="layui-btn layui-btn-sm layui-btn-disabled" id="button{{d.id}}" type="button" lay-event="disable">禁用</button>
+                    {{#  } }}
                 </div>
+
             </script>
         </div>
         <script>
@@ -81,7 +86,7 @@
                         ,{field: 'number', title: '已达标/总数', templet: '#num'}
                         ,{field: 'cost', title: '每日费用'}
                         ,{field: 'money', title: '剩余金额'}
-                        ,{fixed: 'right', title: '操作',width: 250, align:'left', toolbar: '#options'}
+                        ,{fixed: 'right', title: '操作',width: 300, align:'left', toolbar: '#options'}
                     ]]
                 });
 
@@ -89,9 +94,7 @@
                 table.on('tool(dataTable)', function(obj){
                     var data = obj.data;
                     if(obj.event === 'edit'){
-
                         window_open('客户详情','/agent/customer/edit/customer_id/'+data.id+'.html','800','600');
-
                     }else if(obj.event === 'disable'){
                         yzt_to_disable(data.id,"{:url('Customer/to_disable')}");
                     }else if(obj.event === 'keyword'){
@@ -118,6 +121,51 @@
                     active[type] ? active[type].call(this) : '';
                 });
             });
+            function renew(id) {
+
+                radio_html = '<div class="layui-form layui-card-header layuiadmin-card-header-auto"><div class="layui-form-item"><span>充值金额：</span><div class="layui-inline"><div class="layui-input-inline"><input type="text" name="money" id="money" placeholder="请输入续费金额" style="width: 380px;" autocomplete="off" class="layui-input" required="" lay-verify="required" ></div></div></div></div>';
+
+                layer.open({
+                    type: 1
+                    ,title: '客户充值' //不显示标题栏
+                    ,closeBtn: false
+                    ,area: '500px;'
+                    ,shade: 0.8
+                    ,id: 'LAY_layuiRenew'
+                    ,btn: ['续费', '关闭']
+                    ,btnAlign: 'c'
+                    ,moveType: 1 //拖拽模式，0或者1
+                    ,content:radio_html
+                    ,yes: function(){
+                        var money = $('input[name="money"]').val();
+                        if ($('input[name="money"]').val()== '') {
+                            layer.msg('请选输入续费金额！');
+                            return false;
+                        }
+                        $.ajax({
+                            url:"{:url('Customer/customerRenew')}",
+                            data:{money:money,id:id},
+                            type:'post',
+                            dataType:'json',
+                            success:function(result){
+                                if(result.status !== 1){
+                                    layer.msg(result.message, {icon: 5});
+                                    return false;
+                                }else{
+                                    layer.closeAll();
+                                    layer.msg(result.message);
+                                    layui.table.reload('dataTable');
+                                    return false;
+                                }
+                            },
+                        });
+                    }
+                    ,btn2: function(layero){
+                        layer.closeAll();
+                    }
+                });
+
+            }
 
 
         </script>
