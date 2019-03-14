@@ -14,6 +14,7 @@ use cmf\controller\UserBaseController;
 use app\agent\model\SearchModel;
 use app\common\model\Keywords;
 use app\common\model\ProductModel;
+use think\Exception;
 
 /**
  * Class SearchController
@@ -33,7 +34,7 @@ class SearchController extends UserBaseController {
         $info = $this->request->param();
         $keywords = new Keywords();
 
-        if (!empty($info['keywords'])){
+        try{
              $datas = $keywords->getKeywordList('1', $info['keywords'], "1", '10');
 
             if (!empty($datas['list'])) {
@@ -42,9 +43,9 @@ class SearchController extends UserBaseController {
                 $data = [];
             }
              return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
-        }else {
+        }catch (Exception $error){
             $data = [];
-            return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
+            return $this->returnListJson(self::CODE_FAIL, "1", $data, '返回搜索数据');
         }
 
     }
@@ -53,13 +54,13 @@ class SearchController extends UserBaseController {
     {
         $info = $this->request->param();
         $keywords = new Keywords();
-        if (!empty($info['keywords'])) {
+        try{
             $page = $info['page'];
             $limit = $info['limit'];
             $result = $keywords->getKeywordList('1', $info['keywords'], "$page", "$limit");
             $count = array_sum($result);
             return $this->returnListJson(self::CODE_OK, "$count", $result['list'], '返回搜索数据');
-        }else {
+        }catch (Exception $error) {
             $data = [];
             return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
         }
