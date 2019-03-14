@@ -79,18 +79,6 @@
         </div>
         <div class="layui-card-body">
             <table id="dataTable" lay-filter="dataTable"></table>
-            <script type="text/html" id="status">
-                {{#  if(d.status === 0){ }}
-                    暂停
-                {{#  } else if(d.status === 1) { }}
-                    正常
-                {{#  } else if(d.status === 2) { }}
-                    禁用
-                {{#  } else { }}
-                    错误
-                {{#  } }}
-            </script>
-
             <script type="text/html" id="is_top">
                 {{#  if(d.is_top === 0){ }}
                     未达标
@@ -106,6 +94,8 @@
                         <button class="layui-btn layui-btn-sm layui-btn-disabled" id="button{{d.id}}" type="button"  lay-event="disable">暂停</button>
                     {{#  } else if(d.is_top === 1) { }}
                         <button class="layui-btn layui-btn-sm layui-btn-danger" id="button{{d.id}}" type="button"  lay-event="disable">暂停</button>
+                    {{#  } else if(d.is_top === 2) { }}
+                    <button class="layui-btn layui-btn-sm layui-btn-disabled" type="button" >禁用</button>
                     {{#  } }}
                 </div>
                 <div class="layui-btn-group">
@@ -138,7 +128,7 @@
                         ,{field: 'billing_time', title: '套餐天数'}
                         ,{field: 'day_num', title: '计费天数'}
                         ,{field: 'is_top', title: '是否计费',toolbar: '#is_top'}
-                        ,{field: 'status', title: '状态',toolbar: '#status'}
+                        // ,{field: 'status', title: '状态',toolbar: '#status'}
                         ,{fixed: 'right', title: '操作',width: 250, align:'left', toolbar: '#options'}
                     ]]
                 });
@@ -148,10 +138,8 @@
                     var data = obj.data;
                     if(obj.event === 'disable'){
                         yzt_to_disable(data.id,"{:url('Customer/keywordToDisable')}");
-                        layui.table.reload('dataTable');
                     }else if(obj.event === 'delete'){
                         yzt_to_disable(data.id,"{:url('Customer/deleteKeyword')}");
-                        layui.table.reload('dataTable');
                     }
                 });
                 var $ = layui.$, active = {

@@ -8,12 +8,10 @@
 
 namespace app\common\Model;
 
-use app\agent\model\AgentModel;
-use app\common\Model\AgentModel as CommonAgentModel;
-
 use think\Exception;
 use think\Model;
 use ConsumeException;
+use app\common\Model\AgentModel as CommonAgentModel;
 
 class AgentConsumeRecordModel extends Model
 {
@@ -23,8 +21,8 @@ class AgentConsumeRecordModel extends Model
 
 
     static private $agent_cost = [
-        AgentModel::LEVEL_ONE => 2.00,
-        AgentModel::LEVEL_TWO => 5.00
+        CommonAgentModel::LEVEL_ONE => 2.00,
+        CommonAgentModel::LEVEL_TWO => 5.00
     ];
 
 

@@ -100,9 +100,8 @@ class KeywordProductModel extends Model
                 ->limit($start,$limit)
                 ->order('kp.id desc')
                 ->select();
-
         foreach ($keyword_list as $key=>$value){
-            $keyword_list[$key]['days']= CustomerConsumeRecordModel::getCustomerNum($value['id']);
+            $keyword_list[$key]['day_num']= CustomerConsumeRecordModel::getCustomerNum($value['id']);
         }
         return $keyword_list;
     }
@@ -164,12 +163,12 @@ class KeywordProductModel extends Model
         }else{
             throw new Exception("套餐已被禁用！");
         }
-        $status = self::update([
-                        'id'        =>$id,
-                        'status'    =>$status
-                    ])->value('status');
+        self::update([
+            'id'        =>$id,
+            'status'    =>$status
+        ]);
         OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_UPDATE,$id,['status'=>$status]);
-        return $status;
+        return self::where('id',$id)->value('status');
     }
 
 
