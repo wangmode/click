@@ -9,6 +9,7 @@ namespace app\agent\model;
 
 use think\Db;
 use think\Model;
+
 class CustomerConsumeRecordModel extends Model
 {
     /**
