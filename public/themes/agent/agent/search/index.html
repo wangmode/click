@@ -14,7 +14,38 @@
     <script type="text/javascript" src="__TMPL__/public/layui/lay/modules/util.js"></script>
 </head>
 <body>
-<div class="layui-fluid">
+<style>
+    .search_div {
+        height: 400px;
+        position: fixed;
+        left: 55%;
+        top: 55%;
+        z-index: 11;
+        margin: -150px 0 0 -350px;
+    }
+</style>
+    <div class="layui-fluid search_box" style="position:absolute;z-index: 999;width:98%">
+        <div class="layui-card layui-row layui-col-space10"  style="height:800px">
+            <div class="layui-col-md4">
+            </div>
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto layui-col-md4 search_div">
+                <div class="search_table">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" >
+                            <input type="text" style="width:374px;border: 1px solid #6d6b6b;" name="keyword" id="searchs" placeholder="请输入关键词" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline searchs">
+                        <button id="btn1" class="layui-btn" data-type="reload" type="button">搜索</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md4">
+            </div>
+        </div>
+    </div>
+
+<div class="layui-fluid" style="visibility:hidden">
     <div class="layui-card">
         <div class="layui-tab layui-tab-brief">
         </div>
@@ -32,7 +63,7 @@
             </div>
         </div>
 
-        <div class="tabledata" style="visibility:hidden;height:0px">
+        <div class="tabledata" >
             <div class="layui-card-body">
                 <table id="dataTable" lay-filter="dataTable" width="500px"></table>
                 <volist  name="product" id='v2'>
@@ -68,9 +99,10 @@
 
         <script type="text/javascript">
             $(document).ready(function(){
-                $(".search").click(function(){
-                    $(".tabledata").css("visibility","visible");
-                    $(".tabledata").css("height","100%");
+                $(".searchs").click(function(){
+                    $(".layui-fluid").css("visibility","visible");
+                    $(".layui-fluid").css("height","100%");
+                    $(".search_box").css("display","none");
                 });
             });
         </script>
@@ -129,6 +161,18 @@
                     }
                 };
 
+                var $ = layui.$, active1 = {
+                    reload: function(){
+                        var searchs = $('#searchs');
+                        //执行重载
+                        table.reload('dataTable' , {
+                            where: {
+                                keywords: searchs.val(),
+                            }
+                        });
+                    }
+                };
+
                 var $ = layui.$, actives = {
                     reload: function(){
                         var search = $('#search');
@@ -140,10 +184,28 @@
                         });
                     }
                 };
+                var $ = layui.$, actives2 = {
+                    reload: function(){
+                        var searchs = $('#searchs');
+                        //执行重载
+                        table.reload('dataTables' , {
+                            where: {
+                                keywords: searchs.val(),
+                            }
+                        });
+                    }
+                };
+
                 $('.search .layui-btn').on('click', function(){
                     var type = $(this).data('type');
                     active[type] ? active[type].call(this) : '';
                     actives[type] ? actives[type].call(this) : '';
+                });
+
+                $('.searchs .layui-btn').on('click', function(){
+                    var type = $(this).data('type');
+                    active1[type] ? active1[type].call(this) : '';
+                    actives2[type] ? actives2[type].call(this) : '';
                 });
             });
             function time2date(t){
