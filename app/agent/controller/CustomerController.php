@@ -247,9 +247,12 @@ class CustomerController extends UserBaseController
         $data       = $this->request->param();
         $agent_id   = cmf_get_current_user_id();
         try{
+            Db::startTrans();
             KeywordProductModel::newKeywordProduct($agent_id,$keyword,$data,$page,$limit);
+            Db::commit();
             return $this->returnJson(self::STATUS_OK,null,'添加关键词成功！');
         }catch (Exception $exception){
+            Db::rollback();
             return $this->returnJson(self::STATUS_FAIL,null,'添加关键词失败！');
         }
     }

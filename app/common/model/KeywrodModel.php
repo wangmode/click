@@ -17,6 +17,8 @@ class KeywrodModel extends Model
     const STATUS_NORMAL     = 1 ; // 正常
     const STATUS_DISABLE    = 2 ; // 禁用
 
+    const TABLE             = 'keyword';
+
     /**
      * 新增关键词，返回自增ID
      * @param $keywrod
@@ -26,12 +28,14 @@ class KeywrodModel extends Model
      */
     static public function addKeyword($keywrod,$customer_id,$url)
     {
-        return self::insertGetId([
+        $keyword_id = self::insertGetId([
                     'keyword'       =>$keywrod,
                     'customer_id'   =>$customer_id,
                     'url'           =>$url,
                     'status'        =>self::STATUS_NORMAL
                 ]);
+        OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_ADD,$keyword_id ,['keywrod'=>$keywrod,'customer_id'=>$customer_id,'url'=>$url]);
+        return $keyword_id;
     }
 
 }

@@ -11,6 +11,7 @@
 namespace app\agent\model;
 
 use app\common\model\KeywordProductModel;
+use app\common\model\OperationLogModel;
 use think\Exception;
 use think\Model;
 use think\db;
@@ -28,10 +29,13 @@ class CustomerModel extends Model
     const TYPE_ALL = 3;             //网推侠 + 优站通（熊掌客）
     const TYPE_KPB = 5;             //快排宝
 
+    const TABLE = 'Customer';       //当前表名称
+
 
     /**
      * 新建快排宝客户数据
      * @param $data
+     * @return int|string
      * @throws Exception
      */
     static public function addKPBCustomer($data)
@@ -45,17 +49,19 @@ class CustomerModel extends Model
         $data['add_time']=time();
         $data['province']  =  $area[0];
         $data['city']  =  $area[1];
-        self::insertKPBData($data);
+        $customer_id = self::insertKPBData($data);
+        OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_ADD,$customer_id,$data);
     }
 
 
     /**
      * 新增快排宝客户数据
      * @param $data
+     * @return int|string
      */
     static public function insertKPBData($data)
     {
-        self::insert([
+        return self::insertGetId([
             'account'       =>$data['account'],
             'password'      =>password_hash($data['password'],PASSWORD_DEFAULT),
             'company'       =>$data['company'],
@@ -112,6 +118,7 @@ class CustomerModel extends Model
         $data['province']  =  $area[0];
         $data['city']  =  $area[1];
         self::updateKPBData($data);
+        OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_UPDATE,$data['id'],$data);
     }
 
     /**
@@ -164,6 +171,7 @@ class CustomerModel extends Model
         }
         $status = $customer_status == 1 ? 2 : 1 ;
         self::updateCustomerStatusById($id,$status);
+        OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_UPDATE,$id,['status'=>$status]);
         return $status;
     }
 
