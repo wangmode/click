@@ -32,10 +32,10 @@
                 <div class="search_table">
                     <div class="layui-inline">
                         <div class="layui-input-inline" >
-                            <input type="text" style="width:374px;border: 1px solid #6d6b6b;" name="keyword" id="search1" placeholder="请输入关键词" autocomplete="off" class="layui-input">
+                            <input type="text" style="width:374px;border: 1px solid #6d6b6b;" name="keyword" id="searchs" placeholder="请输入关键词" autocomplete="off" class="layui-input">
                         </div>
                     </div>
-                    <div class="layui-inline search">
+                    <div class="layui-inline searchs">
                         <button id="btn1" class="layui-btn" data-type="reload" type="button">搜索</button>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
 
         <script type="text/javascript">
             $(document).ready(function(){
-                $(".search").click(function(){
+                $(".searchs").click(function(){
                     $(".layui-fluid").css("visibility","visible");
                     $(".layui-fluid").css("height","100%");
                     $(".search_box").css("display","none");
@@ -158,11 +158,16 @@
                                 keywords: search.val(),
                             }
                         });
-                        var search1 = $('#search1');
+                    }
+                };
+
+                var $ = layui.$, active1 = {
+                    reload: function(){
+                        var searchs = $('#searchs');
                         //执行重载
                         table.reload('dataTable' , {
                             where: {
-                                keywords: search1.val(),
+                                keywords: searchs.val(),
                             }
                         });
                     }
@@ -177,19 +182,30 @@
                                 keywords: search.val(),
                             }
                         });
-                        var search1 = $('#search1');
+                    }
+                };
+                var $ = layui.$, actives2 = {
+                    reload: function(){
+                        var searchs = $('#searchs');
                         //执行重载
                         table.reload('dataTables' , {
                             where: {
-                                keywords: search1.val(),
+                                keywords: searchs.val(),
                             }
                         });
                     }
                 };
+
                 $('.search .layui-btn').on('click', function(){
                     var type = $(this).data('type');
                     active[type] ? active[type].call(this) : '';
                     actives[type] ? actives[type].call(this) : '';
+                });
+
+                $('.searchs .layui-btn').on('click', function(){
+                    var type = $(this).data('type');
+                    active1[type] ? active1[type].call(this) : '';
+                    actives2[type] ? actives2[type].call(this) : '';
                 });
             });
             function time2date(t){
