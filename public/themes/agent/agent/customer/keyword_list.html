@@ -93,10 +93,10 @@
                 <div class="layui-btn-group">
                     {{#  if(d.status === 0){ }}
                         <button class="layui-btn layui-btn-sm layui-btn-disabled" id="button{{d.id}}" type="button"  lay-event="disable">暂停</button>
-                    {{#  } else if(d.is_top === 1) { }}
+                    {{#  } else if(d.status === 1) { }}
                         <button class="layui-btn layui-btn-sm layui-btn-danger" id="button{{d.id}}" type="button"  lay-event="disable">暂停</button>
-                    {{#  } else if(d.is_top === 2) { }}
-                    <button class="layui-btn layui-btn-sm layui-btn-disabled" type="button" >禁用</button>
+                    {{#  } else if(d.status === 2) { }}
+                    <button class="layui-btn layui-btn-sm layui-btn-disabled" type="button" >禁用33</button>
                     {{#  } }}
                 </div>
 

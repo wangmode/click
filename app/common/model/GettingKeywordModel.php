@@ -38,6 +38,17 @@ class GettingKeywordModel extends Model
     }
 
     /**
+     * @param $keyword
+     * @return string
+     */
+    private function getResultValue($keyword)
+    {
+        return 'keyword_value_'.md5($keyword);
+    }
+
+
+
+    /**
      * @param $admin_id
      * @return string
      */
@@ -119,13 +130,13 @@ class GettingKeywordModel extends Model
         $result_list = json_decode($this->getKeywordWord($keyword,$page),true);
         foreach ($result_list['data']['word'] as $key => $val){
             if($val['keyword'] === $keyword){
-                $result = $val;
+                $this->redis->set($this->getResultValue($keyword),$val,self::KEYWORD_TIME);
             }
         }
         if($result_list['errcode'] != 0){
             return [];
         }
-        return $result;
+        return $result_list['data']['word'];
     }
 
 
@@ -206,22 +217,33 @@ class GettingKeywordModel extends Model
      */
     public function getKeywordList($admin_id,$keyword,$page,$limit)
     {
+        $result = [];
         foreach ($keyword as $key => $val){
-            $result[$key] = $this->getKeywordResult($val);
+            $result[$key] = $this->getKeywordValue($val);
             $this->setKeywordKeyByAdminId($admin_id,$val);
         }
         $start = ($page-1)*$limit;
         $data['count'] = count($result);
         $data['list'] = array_slice($result,$start,$limit);
         foreach ($data['list']  as $key=>$val){
-            if(empty($val)){
-                $data['list'][$key]['price'] = ProductModel::getProductPriceList(0,0,0);
-            }else{
-                $data['list'][$key]['price'] = ProductModel::getProductPriceList($val['baidu_index'], $val['bidword_kwc'],$val['bidword_pcpv']);
-            }
-
+            $data['list'][$key]['price'] = ProductModel::getProductPriceList($val['baidu_index'], $val['bidword_kwc'],$val['bidword_pcpv']);
         }
         return $data;
+    }
+
+
+    /**
+     * 获取存储单个关键词信息
+     * @param $keyword
+     * @return array|mixed
+     */
+    private function getKeywordValue($keyword)
+    {
+        $result = $this->redis->get($this->getResultValue($keyword));
+        if(empty($result)){
+            return ['baidu_index'=>0,'bidword_kwc'=>0,'bidword_pcpv'=>0];
+        }
+        return $result;
     }
 
     /**
