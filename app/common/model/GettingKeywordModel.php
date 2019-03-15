@@ -214,7 +214,12 @@ class GettingKeywordModel extends Model
         $data['count'] = count($result);
         $data['list'] = array_slice($result,$start,$limit);
         foreach ($data['list']  as $key=>$val){
-            $data['list'][$key]['price'] = ProductModel::getProductPriceList($val['baidu_index'], $val['bidword_kwc'],$val['bidword_pcpv']);
+            if(empty($val)){
+                $data['list'][$key]['price'] = ProductModel::getProductPriceList(0,0,0);
+            }else{
+                $data['list'][$key]['price'] = ProductModel::getProductPriceList($val['baidu_index'], $val['bidword_kwc'],$val['bidword_pcpv']);
+            }
+
         }
         return $data;
     }
