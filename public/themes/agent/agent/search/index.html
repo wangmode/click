@@ -84,6 +84,13 @@
 
             <div class="layui-card-body table2">
                 <table id="dataTables" lay-filter="dataTables" width="500px"></table>
+                <script type="text/html" id="keyword">
+                    {{# if (  d.LAY_INDEX  < 4 ) { }}
+                        {{d.keyword}} &nbsp; <img src="http://www.51xuediannao.com/uploads/allimg/140105/1-140105134945.gif" class="layui-circle" width="20" style="margin-top:-4px" height="15">
+                    {{# } else { }}
+                       {{d.keyword}}
+                    {{# } }}  
+                </script>
                 <volist  name="product" id='v'>
                     <script type="text/html" id="price_{$v.id}">
                         {{# for (var j = 0,len = d.price.length;j < len ; j++ ){ }}
@@ -92,8 +99,8 @@
                             {{# }}}
                         {{# }}}
                     </script>
-                </volist>
 
+                </volist>
             </div>
         </div>
 
@@ -103,6 +110,8 @@
                     $(".layui-fluid").css("visibility","visible");
                     $(".layui-fluid").css("height","100%");
                     $(".search_box").css("display","none");
+                    var keyword = $('#searchs').val();
+                    $('#search').val(keyword);
                 });
             });
         </script>
@@ -126,6 +135,7 @@
                         statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
                     }
                     ,cols: [[ //表头
+
                         {field: 'keyword',width:187  , title: '关键词'}
                         <volist  name="product" id='v2'>
                         ,{field: 'price', title: "{$v2.name}" , width:289 , toolbar: "#price2_{$v2.id}"}
@@ -142,7 +152,7 @@
                         statusCode: 200 //规定成功的状态码为 200，table 组件默认为 0
                     }
                     ,cols: [[ //表头
-                        {field: 'keyword',width:187 , title: '关键词'}
+                        {field: 'keyword',width:187 , title: '关键词' , toolbar: '#keyword'}
                         <volist  name="product" id='v'>
                         ,{field: 'price', title: "{$v.name}" , width:289 , toolbar: "#price_{$v.id}"}
                         </volist>
