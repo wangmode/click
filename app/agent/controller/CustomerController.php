@@ -14,6 +14,7 @@ use app\common\model\CustomerAccountLogModel;
 use app\common\model\CustomerConsumeRecordModel;
 use app\common\model\KeywordProductModel;
 use app\common\model\GettingKeywordModel;
+use app\common\model\ProductModel;
 use cmf\controller\UserBaseController;
 use \think\Db;
 use app\common\model\ConfigModel as CommonConfigModel;
@@ -25,6 +26,7 @@ use think\Exception;
 class CustomerController extends UserBaseController
 {
 
+    const KEY_PREFIX = "keyword_result_";
     /**
      * 客户列表
      */
@@ -32,6 +34,17 @@ class CustomerController extends UserBaseController
     {
         $type = $this->request->param('type')?:2;
         $this->assign('type',$type);
+        return $this->fetch();
+    }
+
+    /**
+     * 添加关键词列表
+     */
+    public function keyword_add(){
+        $customer_id = $this->request->param('customer_id');
+        $product_list = ProductModel::getProductList();
+        $this->assign('product',$product_list);
+        $this->assign('customer_id',$customer_id);
         return $this->fetch();
     }
 
@@ -193,7 +206,6 @@ class CustomerController extends UserBaseController
     {
         $data = $this->request->param();
         $validate = $this->validate($data,'Renew');
-
         $agent_id = cmf_get_current_user_id();
         if($validate !== true){
             return $this->returnJson(self::STATUS_FAIL,null,$validate);
@@ -218,6 +230,7 @@ class CustomerController extends UserBaseController
     public function keywordToDisable()
     {
         $id    = $this->request->param('id',0,'intval');
+
         try{
             $status = KeywordProductModel::updateKeywordStatus($id);
             return $this->returnStatusJson(self::STATUS_OK,$status,"修改关键词状态成功！");
@@ -249,13 +262,19 @@ class CustomerController extends UserBaseController
      */
     public function excavateKeywords()
     {
-        $keyword    = $this->request->param('keyword','','string');
+        $str        = $this->request->param('keyword','','string');
+        $str_EN     = preg_replace("/(，)/" ,',' ,$str);
+        $keywords   = preg_replace('/ /', '', $str_EN);
+        $keyword    = explode(",",$keywords);
         $limit      = $this->request->param('limit',10,'intval');
         $page       = $this->request->param('page',1,'intval');
         $agent_id   = cmf_get_current_user_id();
         try{
-            $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id,$keyword,$page,$limit);
-            return $this->returnListJson(self::CODE_OK,$keyword_list['count'],$keyword_list['list'],"获取关键词信息成功！");
+            if (!empty($keyword)) {
+                $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id, $keyword, $page, $limit);
+                return $this->returnListJson(self::CODE_OK, $keyword_list['count'], $keyword_list['list'], "获取关键词信息成功！");
+            }
+            return $this->returnListJson(self::CODE_OK, 0, [], "获取关键词信息成功！");
         }catch (Exception $exception){
             return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
@@ -268,19 +287,76 @@ class CustomerController extends UserBaseController
      */
     public function addKeywords()
     {
-        $keyword    = $this->request->param('keyword','','string');
-        $limit      = $this->request->param('limit',10,'intval');
-        $page       = $this->request->param('page',1,'intval');
-        $data       = $this->request->param();
-        $agent_id   = cmf_get_current_user_id();
+        $data        = $this->request->param();
+        $agent_id    = cmf_get_current_user_id();
+        $url = $data['url'];
+        $customer_id = $data['customer_id'];
+        unset($data['url']);
+        unset($data['customer_id']);
+        if(array_key_exists('layTableCheckbox',$data)){
+            unset($data['layTableCheckbox']);
+        }
+        $res = [];
+        foreach ($data as $key=>$value){
+            $keys = substr($key,15);
+            $keys_arr = explode("-",$keys);
+            if(strcmp($keys_arr[1],'setmeal') !== 0){
+                $res[$keys_arr[0]]['price'][] = $keys_arr[1];
+                $res[$keys_arr[0]]['setmeal'] = $data['keyword_result_'.$keys_arr[0].'-setmeal'];
+                $res[$keys_arr[0]]['url'] = $url;
+                $res[$keys_arr[0]]['customer_id'] = $customer_id;
+            }
+        }
         try{
             Db::startTrans();
-            KeywordProductModel::newKeywordProduct($agent_id,$keyword,$data,$page,$limit);
+            foreach ($res as $key => $val){
+                KeywordProductModel::newKeywordProduct($agent_id,self::KEY_PREFIX.$key,$val);
+            }
             Db::commit();
             return $this->returnJson(self::STATUS_OK,null,'添加关键词成功！');
         }catch (Exception $exception){
             Db::rollback();
             return $this->returnJson(self::STATUS_FAIL,null,'添加关键词失败！');
+        }
+    }
+
+    /**
+     * 客户充值记录列表
+     * @return mixed
+     */
+    public function cusetomerCustomerRenewList()
+    {
+        $cusetomer_id = $this->request->param('id');
+        try{
+            if(empty($cusetomer_id)){
+                throw new Exception('非法访问');
+            }
+            $this->assign('id',$cusetomer_id);
+            return $this->fetch();
+        }catch (Exception $exception){
+            $this->error($exception->getMessage());
+        }
+    }
+
+
+    /**
+     * 获取客户充值信息
+     * @return \think\response\Json
+     */
+    public function cusetomerCustomerRenewData()
+    {
+        $cusetomer_id = $this->request->param('id');
+        $limit      = $this->request->param('limit',10,'intval');
+        $page       = $this->request->param('page',1,'intval');
+        try{
+            if(empty($cusetomer_id)){
+                throw new Exception("非法访问！");
+            }
+            $count = CustomerAccountLogModel::getCustomerAccountCount($cusetomer_id);
+            $list = CustomerAccountLogModel::getCustomerAccountList($cusetomer_id,$page,$limit);
+            return $this->returnListJson(self::CODE_OK,$count,$list,"获取充值信息成功！");
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
     }
 

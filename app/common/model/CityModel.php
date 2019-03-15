@@ -24,7 +24,7 @@ class CityModel extends Model
      */
     static public function getProvinceList()
     {
-        return self::where('level',1)->field('id,parent_id,level,name,status')->select();
+        return self::where('level',1)->field('id,parent_id,level,name')->select();
     }
 
 

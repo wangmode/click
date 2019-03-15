@@ -17,9 +17,9 @@ class GettingKeywordModel extends Model
 {
 
 
-    const APIKEY = "6BF2794D60C840E8930FD4C3CDFEF325";
+    const APIKEY = "646A0C6C79B843A987BBED2645B99A43";
 
-    const KEYWORD_TIME = 18000;
+    const KEYWORD_TIME = 86400;
 
     private $redis ;
 
@@ -36,6 +36,17 @@ class GettingKeywordModel extends Model
     {
         return 'keyword_result_'.md5($keyword);
     }
+
+    /**
+     * @param $keyword
+     * @return string
+     */
+    private function getResultValue($keyword)
+    {
+        return 'keyword_value_'.md5($keyword);
+    }
+
+
 
     /**
      * @param $admin_id
@@ -116,12 +127,16 @@ class GettingKeywordModel extends Model
      */
     private function processResult($keyword,$page)
     {
-        $result = json_decode($this->getKeywordWord($keyword,$page),true);
-        if($result['errcode'] != 0){
+        $result_list = json_decode($this->getKeywordWord($keyword,$page),true);
+        foreach ($result_list['data']['word'] as $key => $val){
+            if($val['keyword'] === $keyword){
+                $this->redis->set($this->getResultValue($keyword),$val,self::KEYWORD_TIME);
+            }
+        }
+        if($result_list['errcode'] != 0){
             return [];
         }
-        $data = $result['data']['word'];
-        return $data;
+        return $result_list['data']['word'];
     }
 
 
@@ -132,6 +147,7 @@ class GettingKeywordModel extends Model
     private function setKeywordResult($keyword)
     {
         $data = $this->getKeywordResultData($keyword);
+        $data['key_id'] = $this->getResultKey($keyword);
         $this->redis->set($this->getResultKey($keyword),$data,self::KEYWORD_TIME);
     }
 
@@ -164,7 +180,7 @@ class GettingKeywordModel extends Model
     private function getKeywordResultData($keyword)
     {
         $data = [];
-        $page = config('keyword_num')?ceil(config('keyword_num')/1000):3;
+        $page = config('keyword_num')?ceil(config('keyword_num')/1000):1;
         for ($i = 1 ;$i<=$page;$i++){
             $data = array_merge($data,$this->processResult($keyword,$i));
         }
@@ -201,8 +217,11 @@ class GettingKeywordModel extends Model
      */
     public function getKeywordList($admin_id,$keyword,$page,$limit)
     {
-        $result = $this->getKeywordResult($keyword);
-        $this->setKeywordKeyByAdminId($admin_id,$keyword);
+        $result = [];
+        foreach ($keyword as $key => $val){
+            $result[$key] = $this->getKeywordValue($val);
+            $this->setKeywordKeyByAdminId($admin_id,$val);
+        }
         $start = ($page-1)*$limit;
         $data['count'] = count($result);
         $data['list'] = array_slice($result,$start,$limit);
@@ -210,6 +229,21 @@ class GettingKeywordModel extends Model
             $data['list'][$key]['price'] = ProductModel::getProductPriceList($val['baidu_index'], $val['bidword_kwc'],$val['bidword_pcpv']);
         }
         return $data;
+    }
+
+
+    /**
+     * 获取存储单个关键词信息
+     * @param $keyword
+     * @return array|mixed
+     */
+    private function getKeywordValue($keyword)
+    {
+        $result = $this->redis->get($this->getResultValue($keyword));
+        if(empty($result)){
+            return ['baidu_index'=>0,'bidword_kwc'=>0,'bidword_pcpv'=>0];
+        }
+        return $result;
     }
 
     /**
@@ -227,6 +261,19 @@ class GettingKeywordModel extends Model
         $start = ($page-1)*$limit;
         $list  = array_slice($result,$start,$limit);
         return $list;
+    }
+
+    /**
+     * 获取关键词列表
+     * @param $admin_id
+     * @param $keyword
+     * @return mixed
+     */
+    public function getKeywordInfo($admin_id,$keyword)
+    {
+        $result = $this->redis->get($keyword);
+        $this->setKeywordKeyByAdminId($admin_id,$keyword);
+        return $result;
     }
 
 
