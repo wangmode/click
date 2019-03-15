@@ -175,13 +175,40 @@ class KeywordProductModel extends Model
 
     /**
      * 变更关键词首页状态
-     * @param $id
+     * @param $id           //套餐产品ID
+     * @param $ranking      //排名
      * @return KeywordProductModel
      */
-    public function updateKeywordProductIsTop($id,$ranking)
+    private function upKeywordProductIsTop($id,$ranking)
     {
-        return self::where('id',$id)->where('status',self::STATUS_NORMAL)->update(['is_top'=>self::IS_TOP_YES,'ranking'=>$ranking]);
+        return self::updateKeywordProductIsTop($id,self::IS_TOP_YES,$ranking);
     }
+
+
+    /**
+     * 关键词下架首页变更状态
+     * @param $id           //套餐产品ID
+     * @return KeywordProductModel
+     */
+    public function lowerKeywordProductIsTop($id)
+    {
+        return self::updateKeywordProductIsTop($id,self::IS_TOP_NO);
+    }
+
+
+    /**
+     * 变更关键词套餐首页状态
+     * @param $id
+     * @param $is_top
+     * @param int $ranking
+     * @return KeywordProductModel
+     */
+    private function updateKeywordProductIsTop($id,$is_top,$ranking=0)
+    {
+        return self::where('id',$id)->where('status',self::STATUS_NORMAL)->update(['is_top'=>$is_top,'ranking'=>$ranking]);
+    }
+
+
 
     /**
      * 检查关键词产品状态
@@ -244,7 +271,7 @@ class KeywordProductModel extends Model
      */
     static public function getKeywordInfo($id)
     {
-        return self::where('id',$id)->where('is_del',self::IS_DEL_NO)->where('is_top',self::IS_TOP_YES)->field(['status','money','agent_id','customer_id'])->find();
+        return self::where('id',$id)->where('is_del',self::IS_DEL_NO)->field(['status','money','agent_id','customer_id'])->find();
     }
 
     /**
@@ -305,7 +332,7 @@ class KeywordProductModel extends Model
     {
         try{
             $keywrod_info = self::getKeywordInfo($id);
-            self::updateKeywordProductIsTop($id,$ranking);
+            self::upKeywordProductIsTop($id,$ranking);
             if(empty($keywrod_info)){
                 throw new Exception('获取不到当前产品信息！');
             }
@@ -314,6 +341,8 @@ class KeywordProductModel extends Model
             throw new ConsumeException($exception->getMessage(),ConsumeErrorLogModel::TYPE_PRODUCT,$id);
         }
     }
+
+
 
 
     /**
