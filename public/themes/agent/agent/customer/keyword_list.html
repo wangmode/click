@@ -74,7 +74,8 @@
 
         <div class="layui-card-header layuiadmin-card-header-auto" id="component-layer-list">
             <div class="layadmin-layer-demo">
-                <button class="layui-btn layuiadmin-btn-list" onclick="window_open('添加内容','{:url(\'Customer/add\')}','850','660')">添加关键词</button>
+                <!--<button class="layui-btn layuiadmin-btn-list" onclick="window_open('添加内容','{:url(\'Customer/keyword_add\')}','1500','700')">添加关键词</button>-->
+                <button class="layui-btn layuiadmin-btn-list" onclick="window_open('添加内容','/agent/customer/keyword_add/customer_id/\'+{$info.id}+\'.html','1500','700')">添加关键词</button>
             </div>
         </div>
         <div class="layui-card-body">

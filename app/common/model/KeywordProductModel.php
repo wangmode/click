@@ -268,30 +268,28 @@ class KeywordProductModel extends Model
      * @param $limit
      * @throws Exception
      */
-    static public function newKeywordProduct($admin_id,$keyword,$data,$page,$limit)
+    static public function newKeywordProduct($admin_id,$keyword,$data)
     {
         $gettingKeywrod = new GettingKeywordModel();
-        $list = $gettingKeywrod->getKeywordListData($admin_id,$keyword,$page,$limit);
-        foreach ($data['keyword_list'] as $key=>$val){
-            $info = [];
-            if(!isset($list[$val['keywrod_key']]['keywrod']) || empty($list[$val['keywrod_key']]['keywrod'])){
-                throw new Exception('数据错误，请重新挖掘关键词！');
-            }
-            $info['agent_id']       = $admin_id;
-            $info['customer_id']    = $data['customer_id'];
-            $info['billing_time']   = self::getBillingDays($val['billing_time']);
-            $info['keyword_id']     = KeywrodModel::addKeyword( $list[$val['keywrod_key']]['keywrod'],$data['customer_id'],$data['url']);
-            if(empty($info['keyword_id'])){
-                throw new Exception('关键词添加失败，请重试！');
-            }
-            $basics_price = KeywordPriceModel::getBasicsPrice($list[$val['keywrod_key']]['baidu_index'],$list[$val['keywrod_key']]['bidword_kwc'],$list[$val['keywrod_key']]['bidword_pcpv']);
-            foreach ($val['product'] as $k=>$v){
-                $info['product_id'] =  $v;
-                $coefficient = ProductModel::getProductCoefficientById($v);
-                $info['money'] =  bcmul($coefficient,$basics_price,2);
-                $keywrodProduct_id = self::addKeywordProduct($info);
-                OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_ADD,$keywrodProduct_id ,$info);
-            }
+        $list = $gettingKeywrod->getKeywordInfo($admin_id,$keyword);
+        $info = [];
+        if(!isset($list['key_id']) || empty($list['key_id'])){
+            throw new Exception('数据错误，请重新挖掘关键词！');
+        }
+        $info['agent_id']       = $admin_id;
+        $info['customer_id']    = $data['customer_id'];
+        $info['billing_time']   = self::getBillingDays($data['setmeal']);
+        $info['keyword_id']     = KeywordModel::addKeyword( $list['keyword'],$data['customer_id'],$data['url']);
+        if(empty($info['keyword_id'])){
+            throw new Exception('关键词添加失败，请重试！');
+        }
+        $basics_price = KeywordPriceModel::getBasicsPrice($list['baidu_index'],$list['bidword_kwc'],$list['bidword_pcpv']);
+        foreach ($data['price'] as $k=>$v){
+            $info['product_id'] =  $v;
+            $coefficient = ProductModel::getProductCoefficientById($v);
+            $info['money'] =  bcmul($coefficient,$basics_price,2);
+            $keywrodProduct_id = self::addKeywordProduct($info);
+            OperationLogModel::agentAddOperationLog(self::TABLE,OperationLogModel::ACTION_ADD,$keywrodProduct_id ,$info);
         }
     }
 
