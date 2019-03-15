@@ -115,6 +115,7 @@
                 });
 
                 form.on('submit(getCheckData)', function(data){
+                    data.field['customer_id'] = {$customer_id};
                     $.post("{:url('Customer/addKeywords')}",data.field,function(res){
                         if(res.status == 1){
                             layer.alert(res.message);

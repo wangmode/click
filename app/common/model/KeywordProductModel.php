@@ -283,7 +283,6 @@ class KeywordProductModel extends Model
             throw new Exception('关键词添加失败，请重试！');
         }
         $basics_price = KeywordPriceModel::getBasicsPrice($list['baidu_index'],$list['bidword_kwc'],$list['bidword_pcpv']);
-
         foreach ($data['price'] as $k=>$v){
             $info['product_id'] =  $v;
             $coefficient = ProductModel::getProductCoefficientById($v);

@@ -40,8 +40,10 @@ class CustomerController extends UserBaseController
      * 添加关键词列表
      */
     public function keyword_add(){
+        $customer_id = $this->request->param('customer_id');
         $product_list = ProductModel::getProductList();
         $this->assign('product',$product_list);
+        $this->assign('customer_id',$customer_id);
         return $this->fetch();
     }
 
@@ -289,11 +291,12 @@ class CustomerController extends UserBaseController
      */
     public function addKeywords()
     {
-        $data       = $this->request->param();
-        $agent_id   = cmf_get_current_user_id();
-        $customer_id   = 2; //用户id
+        $data        = $this->request->param();
+        $agent_id    = cmf_get_current_user_id();
         $url = $data['url'];
+        $customer_id = $data['customer_id'];
         unset($data['url']);
+        unset($data['customer_id']);
         if(array_key_exists('layTableCheckbox',$data)){
             unset($data['layTableCheckbox']);
         }
