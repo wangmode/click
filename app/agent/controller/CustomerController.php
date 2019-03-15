@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 namespace app\agent\controller;
 
+use app\common\model\CustomerAccountLogModel;
 use app\common\model\KeywordProductModel;
 use app\common\model\GettingKeywordModel;
 use app\common\model\ProductModel;
@@ -19,7 +20,6 @@ use app\common\model\ConfigModel as CommonConfigModel;
 use app\common\model\ProductModel as CommonProductModel;
 use app\common\model\CustomerModel as CommonCustomerModel;
 use app\agent\model\CustomerModel;
-use app\admin\model\DeployModel;
 use think\Exception;
 
 class CustomerController extends UserBaseController
@@ -145,7 +145,7 @@ class CustomerController extends UserBaseController
         $customer_id = $this->request->param('id');
         try{
             $status = CustomerModel::editCustomerStatusById($customer_id);
-            return json(['status'=>1,'customer_status'=>$status,'msg'=>'操作成功！']);
+            return $this->returnStatusJson(self::STATUS_OK,$status,'操作成功！');
         }catch (Exception $exception){
             return $this->returnJson(self::STATUS_FAIL,null,$exception->getMessage());
         }
@@ -193,6 +193,36 @@ class CustomerController extends UserBaseController
         }catch (Exception $exception){
             return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
+    }
+
+
+    /**
+     * 客户充值
+     * @return \think\response\Json
+     */
+    public function customerRenew()
+    {
+        $data = $this->request->param();
+        $validate = $this->validate($data,'Renew');
+
+        $agent_id = cmf_get_current_user_id();
+        if($validate !== true){
+            return $this->returnJson(self::STATUS_FAIL,null,$validate);
+        }
+        try{
+            Db::startTrans();
+            CommonCustomerModel::customerRecharge($data['id'],$data['money']);
+            CustomerAccountLogModel::addCustomerAccountLog($agent_id,$data['id'],$data['money']);
+            Db::commit();
+            return $this->returnJson(self::STATUS_OK,null,'充值成功！');
+        }catch (Exception $exception){
+            Db::rollback();
+            return $this->returnJson(self::STATUS_FAIL,null,$exception->getMessage());
+        }
+
+
+
+
     }
 
 

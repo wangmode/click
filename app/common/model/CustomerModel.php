@@ -9,6 +9,7 @@
 namespace app\common\Model;
 
 use ConsumeException;
+use think\Exception;
 use think\Model;
 
 class CustomerModel extends Model
@@ -44,6 +45,27 @@ class CustomerModel extends Model
         }
         return self::where('id',$customer_id)->value('money');
     }
+
+
+    /**
+     * 客户充值更新余额
+     * @param $customer_id      //客户ID
+     * @param $money            //金额
+     * @return mixed
+     * @throws \think\Exception
+     */
+    static public function customerRecharge($customer_id,$money)
+    {
+        $update_num = self::where('id',$customer_id)->setInc('money',$money);
+        if($update_num != 1){
+            throw new Exception('当前客户余额更新失败！');
+        }
+        return self::where('id',$customer_id)->value('money');
+    }
+
+
+
+
 
 
 
