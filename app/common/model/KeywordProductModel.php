@@ -102,6 +102,7 @@ class KeywordProductModel extends Model
                 ->select();
         foreach ($keyword_list as $key=>$value){
             $keyword_list[$key]['day_num']= CustomerConsumeRecordModel::getCustomerNum($value['id']);
+            $keyword_list[$key]['sum_cost'] = CustomerConsumeRecordModel::getTotalSumBySourceId($value['id']);
         }
         return $keyword_list;
     }

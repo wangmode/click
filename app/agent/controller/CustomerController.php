@@ -11,6 +11,7 @@
 namespace app\agent\controller;
 
 use app\common\model\CustomerAccountLogModel;
+use app\common\model\CustomerConsumeRecordModel;
 use app\common\model\KeywordProductModel;
 use app\common\model\GettingKeywordModel;
 use cmf\controller\UserBaseController;
@@ -207,10 +208,6 @@ class CustomerController extends UserBaseController
             Db::rollback();
             return $this->returnJson(self::STATUS_FAIL,null,$exception->getMessage());
         }
-
-
-
-
     }
 
 
@@ -285,6 +282,51 @@ class CustomerController extends UserBaseController
             Db::rollback();
             return $this->returnJson(self::STATUS_FAIL,null,'添加关键词失败！');
         }
+    }
+
+
+    /**
+     * 关键词产品套餐扣费记录列表
+     * @return mixed
+     */
+    public function consumeRecordList()
+    {
+        $keywordProduct_id = $this->request->param('id');
+
+        try{
+            if(empty($keywordProduct_id)){
+                throw new Exception("非法访问！");
+            }
+            $money = CustomerConsumeRecordModel::getTotalSumBySourceId($keywordProduct_id);
+            $this->assign('id',$keywordProduct_id);
+            $this->assign('money',$money);
+            return $this->fetch();
+        }catch (Exception $exception){
+            $this->error($exception->getMessage());
+        }
+    }
+
+
+    /**
+     * 获取关键词扣费信息列表数据
+     * @return \think\response\Json
+     */
+    public function keywordProductConsumeRecordData()
+    {
+        $keywordProduct_id = $this->request->param('id');
+        $limit      = $this->request->param('limit',10,'intval');
+        $page       = $this->request->param('page',1,'intval');
+        try{
+            if(empty($keywordProduct_id)){
+                throw new Exception("非法访问！");
+            }
+            $count = CustomerConsumeRecordModel::getRecordListCountBySourceId($keywordProduct_id);
+            $list = CustomerConsumeRecordModel::getRecordListBySourceId($keywordProduct_id,$page,$limit);
+            return $this->returnListJson(self::CODE_OK,$count,$list,"获取扣费信息成功！");
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
+        }
+
     }
 
 
