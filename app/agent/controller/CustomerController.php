@@ -25,6 +25,7 @@ use think\Exception;
 class CustomerController extends UserBaseController
 {
 
+    const KEY_PREFIX = "keyword_result_";
     /**
      * 客户列表
      */
@@ -233,16 +234,19 @@ class CustomerController extends UserBaseController
      */
     public function excavateKeywords()
     {
-        $keyword    = $this->request->param('keyword','','string');
+        $str        = $this->request->param('keyword','','string');
+        $str_EN     = preg_replace("/(，)/" ,',' ,$str);
+        $keywords   = preg_replace('/ /', '', $str_EN);
+        $keyword    = explode(",",$keywords);
         $limit      = $this->request->param('limit',10,'intval');
         $page       = $this->request->param('page',1,'intval');
         $agent_id   = cmf_get_current_user_id();
         try{
-            if(!empty($keyword)){
-                $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id,$keyword,$page,$limit);
-                return $this->returnListJson(self::CODE_OK,$keyword_list['count'],$keyword_list['list'],"获取关键词信息成功！");
+            if (!empty($keyword)) {
+                $keyword_list = (new GettingKeywordModel())->getKeywordList($agent_id, $keyword, $page, $limit);
+                return $this->returnListJson(self::CODE_OK, $keyword_list['count'], $keyword_list['list'], "获取关键词信息成功！");
             }
-            return $this->returnListJson(self::CODE_OK,0,[],"获取关键词信息成功！");
+            return $this->returnListJson(self::CODE_OK, 0, [], "获取关键词信息成功！");
         }catch (Exception $exception){
             return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
@@ -255,14 +259,30 @@ class CustomerController extends UserBaseController
      */
     public function addKeywords()
     {
-        $keyword    = $this->request->param('keyword','','string');
-        $limit      = $this->request->param('limit',10,'intval');
-        $page       = $this->request->param('page',1,'intval');
         $data       = $this->request->param();
         $agent_id   = cmf_get_current_user_id();
+        $customer_id   = 2; //用户id
+        $url = $data['url'];
+        unset($data['url']);
+        if(array_key_exists('layTableCheckbox',$data)){
+            unset($data['layTableCheckbox']);
+        }
+        $res = [];
+        foreach ($data as $key=>$value){
+            $keys = substr($key,15);
+            $keys_arr = explode("-",$keys);
+            if(strcmp($keys_arr[1],'setmeal') !== 0){
+                $res[$keys_arr[0]]['price'][] = $keys_arr[1];
+                $res[$keys_arr[0]]['setmeal'] = $data['keyword_result_'.$keys_arr[0].'-setmeal'];
+                $res[$keys_arr[0]]['url'] = $url;
+                $res[$keys_arr[0]]['customer_id'] = $customer_id;
+            }
+        }
         try{
             Db::startTrans();
-            KeywordProductModel::newKeywordProduct($agent_id,$keyword,$data,$page,$limit);
+            foreach ($res as $key => $val){
+                KeywordProductModel::newKeywordProduct($agent_id,self::KEY_PREFIX.$key,$val);
+            }
             Db::commit();
             return $this->returnJson(self::STATUS_OK,null,'添加关键词成功！');
         }catch (Exception $exception){
