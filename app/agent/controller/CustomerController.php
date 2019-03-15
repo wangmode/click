@@ -191,7 +191,6 @@ class CustomerController extends UserBaseController
             }
             $count = KeywordProductModel::getCustomerKeywordCount($customer_id,$keyword,$is_top,$status);
             $keyword_list = KeywordProductModel::getCustomerKeywordListData($customer_id,$keyword,$is_top,$status,$page,$limit);
-            var_dump($keyword_list);die;
             return $this->returnListJson(self::CODE_OK,$count,$keyword_list,"获取关键词信息成功！");
         }catch (Exception $exception){
             return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
@@ -207,7 +206,6 @@ class CustomerController extends UserBaseController
     {
         $data = $this->request->param();
         $validate = $this->validate($data,'Renew');
-
         $agent_id = cmf_get_current_user_id();
         if($validate !== true){
             return $this->returnJson(self::STATUS_FAIL,null,$validate);
