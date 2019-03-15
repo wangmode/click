@@ -218,6 +218,7 @@ class CustomerController extends UserBaseController
     public function keywordToDisable()
     {
         $id    = $this->request->param('id',0,'intval');
+
         try{
             $status = KeywordProductModel::updateKeywordStatus($id);
             return $this->returnStatusJson(self::STATUS_OK,$status,"修改关键词状态成功！");
@@ -281,6 +282,46 @@ class CustomerController extends UserBaseController
         }catch (Exception $exception){
             Db::rollback();
             return $this->returnJson(self::STATUS_FAIL,null,'添加关键词失败！');
+        }
+    }
+
+    /**
+     * 客户充值记录列表
+     * @return mixed
+     */
+    public function cusetomerCustomerRenewList()
+    {
+        $cusetomer_id = $this->request->param('id');
+        try{
+            if(empty($cusetomer_id)){
+                throw new Exception('非法访问');
+            }
+            $this->assign('id',$cusetomer_id);
+            return $this->fetch();
+        }catch (Exception $exception){
+            $this->error($exception->getMessage());
+        }
+    }
+
+
+    /**
+     * 获取客户充值信息
+     * @return \think\response\Json
+     */
+    public function cusetomerCustomerRenewData()
+    {
+        $cusetomer_id = $this->request->param('id');
+        $limit      = $this->request->param('limit',10,'intval');
+        $page       = $this->request->param('page',1,'intval');
+        try{
+            if(empty($cusetomer_id)){
+                throw new Exception("非法访问！");
+            }
+            $count = CustomerAccountLogModel::getCustomerAccountCount($cusetomer_id);
+            $list = CustomerAccountLogModel::getCustomerAccountList($cusetomer_id,$page,$limit);
+            return $this->returnListJson(self::CODE_OK,$count,$list,"获取充值信息成功！");
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
     }
 
