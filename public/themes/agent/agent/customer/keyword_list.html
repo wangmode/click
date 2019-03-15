@@ -99,6 +99,10 @@
                     <button class="layui-btn layui-btn-sm layui-btn-disabled" type="button" >禁用</button>
                     {{#  } }}
                 </div>
+
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-sm layui-btn-danger"  type="button"  lay-event="record">扣费记录</button>
+                </div>
                 <div class="layui-btn-group">
                     <button class="layui-btn layui-btn-sm layui-btn-danger" id="button{{d.id}}" type="button"  lay-event="delete">删除</button>
                 </div>
@@ -123,11 +127,12 @@
                     }
                     ,cols: [[ //表头
                         {field: 'keyword', title: '关键词'}
-                        ,{field: 'product_name', title: '产品'}
-                        ,{field: 'cost', title: '费用'}
-                        ,{field: 'ranking', title: '排名'}
+                        ,{field: 'product_name', title: '搜索引擎'}
+                        ,{field: 'cost', title: '每日扣费'}
+                        ,{field: 'ranking', title: '当前排名'}
                         ,{field: 'billing_time', title: '套餐天数'}
                         ,{field: 'day_num', title: '计费天数'}
+                        ,{field: 'sum_cost', title: '总计扣费金额'}
                         ,{field: 'is_top', title: '是否计费',toolbar: '#is_top'}
                         // ,{field: 'status', title: '状态',toolbar: '#status'}
                         ,{fixed: 'right', title: '操作',width: 250, align:'left', toolbar: '#options'}
@@ -141,6 +146,8 @@
                         yzt_to_disable(data.id,"{:url('Customer/keywordToDisable')}");
                     }else if(obj.event === 'delete'){
                         yzt_to_disable(data.id,"{:url('Customer/deleteKeyword')}");
+                    }else if(obj.event === 'record'){
+                        window_open('扣费记录','/agent/customer/consumeRecordList/id/'+data.id+'.html','1000','600');
                     }
                 });
                 var $ = layui.$, active = {

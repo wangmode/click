@@ -75,5 +75,45 @@ class CustomerConsumeRecordModel extends Model
     }
 
 
+    /**
+     * 获取当前产品套餐总计扣费金额
+     * @param $source_id
+     * @return mixed
+     */
+    static public function getTotalSumBySourceId($source_id)
+    {
+        return self::where('source_id',$source_id)->value('ifnull(sum(money),0.00)');
+    }
+
+    /**
+     * 获取关键词套餐客户扣费记录列表
+     * @param $source_id        //套餐ID
+     * @param $page             //页码
+     * @param $limit            //每页条数
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    static public function getRecordListBySourceId($source_id,$page,$limit)
+    {
+        $start = ($page-1)*$limit;
+        return self::where('source_id',$source_id)
+                ->limit($start,$limit)
+                ->field(['time','money','balance'])
+                ->order('time','desc')
+                ->select();
+    }
+
+    /**
+     * 获取关键词套餐客户扣费总条数
+     * @param $source_id    //套餐ID
+     * @return int|string
+     */
+    static public function getRecordListCountBySourceId($source_id){
+        return self::where('source_id',$source_id)->count();
+    }
+
+
 
 }
