@@ -13,6 +13,7 @@ namespace app\agent\controller;
 use cmf\controller\UserBaseController;
 use app\agent\model\SearchModel;
 use app\common\model\Keywords;
+use app\common\model\GettingKeywordModel;
 use app\common\model\ProductModel;
 use think\Exception;
 
@@ -27,16 +28,16 @@ class SearchController extends UserBaseController {
     {
         $product = ProductModel::getProductList();
         $this->assign('product',$product);
-        $keywords = new Keywords();
-        $datas = $keywords->getKeywordList('1', 111, "1", '10');
-        //dump($datas);
+        //$keywords = new GettingKeywordModel();
+     //   $datas = $keywords->getKeywordList('1', [0 ,23], "1", '10');
+      //  dump($datas);
         return $this->fetch();
     }
 
     public function data(){
         $info = $this->request->param();
-        $keywords = new Keywords();
-        $datas = $keywords->getKeywordList('1', $info['keywords'], "1", '10');
+        $keywords = new GettingKeywordModel();
+        $datas = $keywords->getKeywordLists('1', $info['keywords'], "1", '10');
            if (!empty($datas['list'])) {
                 if (!empty($datas['list'])) {
                     $data = $keywords->getKeyword($datas , $info['keywords']);
@@ -83,11 +84,11 @@ class SearchController extends UserBaseController {
     public function datas()
     {
         $info = $this->request->param();
-        $keywords = new Keywords();
+        $keywords = new GettingKeywordModel();
         try{
             $page = $info['page'];
             $limit = $info['limit'];
-            $result = $keywords->getKeywordList('1', $info['keywords'], "$page", "$limit");
+            $result = $keywords->getKeywordLists('1', $info['keywords'], "$page", "$limit");
             $count = array_sum($result);
             return $this->returnListJson(self::CODE_OK, "$count", $result['list'], '返回搜索数据');
         }catch (Exception $error) {

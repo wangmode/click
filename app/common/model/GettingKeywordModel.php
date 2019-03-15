@@ -232,6 +232,19 @@ class GettingKeywordModel extends Model
     }
 
 
+    public function getKeywordLists($admin_id,$keyword,$page,$limit)
+    {
+        $result = $this->getKeywordResult($keyword);
+        $this->setKeywordKeyByAdminId($admin_id,$keyword);
+        $start = ($page-1)*$limit;
+        $data['count'] = count($result);
+        $data['list'] = array_slice($result,$start,$limit);
+        foreach($data['list'] as $key=>$value){
+            $data['list'][$key]['price'] = ProductModel::getProductPriceList($value['baidu_index'],$value['bidword_kwc'],$value['bidword_pcpv']);
+        }
+        return $data;
+    }
+
     /**
      * 获取存储单个关键词信息
      * @param $keyword
@@ -295,6 +308,20 @@ class GettingKeywordModel extends Model
         }
         $data = array_column($this->getKeywordResult($keyword),'keyword');
         return implode("\n",$data);
+    }
+
+    /**
+     * 精准查询
+     */
+    public function getKeyword($datas , $keyword){
+        foreach($datas['list'] as $value) {
+            $arrs[] = array_search("$keyword", $value);
+            $num = array_search('keyword' , $arrs);
+        }
+        foreach ($datas['list'] as $value){
+            $arr[] = array($value);
+        }
+        return $arr[$num];
     }
 
 }
