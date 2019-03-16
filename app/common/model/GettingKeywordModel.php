@@ -17,7 +17,7 @@ class GettingKeywordModel extends Model
 {
 
 
-    const APIKEY = "646A0C6C79B843A987BBED2645B99A43";
+    const APIKEY = "324419DB81C24721B2EEB40A519BCA1C";
 
     const KEYWORD_TIME = 86400;
 
@@ -282,7 +282,11 @@ class GettingKeywordModel extends Model
     {
         $result = $this->redis->get($this->getResultValue($keyword));
         if(empty($result)){
-            return ['baidu_index'=>0,'bidword_kwc'=>0,'bidword_pcpv'=>0];
+            $this->setKeywordResult($keyword);
+            $result = $this->redis->get($this->getResultValue($keyword));
+            if(empty($result)){
+                return ['keyword'=>$keyword,'baidu_index'=>0,'bidword_kwc'=>0,'bidword_pcpv'=>0];
+            }
         }
         return $result;
     }
