@@ -10,7 +10,7 @@ namespace app\common\Model;
 
 use think\Exception;
 use think\Model;
-use ConsumeException;
+use app\common\Exception\ConsumeException;
 use app\common\Model\AgentModel as CommonAgentModel;
 
 class AgentConsumeRecordModel extends Model
@@ -76,8 +76,10 @@ class AgentConsumeRecordModel extends Model
                 KeywordProductModel::disableKeywordProductByAgentId($agent_id);
                 throw new ConsumeException("您的余额不足，请充值！",ConsumeErrorLogModel::TYPE_AGENT,$agent_id);
             }
+
             $agent_balance = CommonAgentModel::agentPayment($agent_id,$cost);
             AgentConsumeRecordModel::addAgentConsumeRecord($agent_id,$cost,$keyword_product_id,$agent_balance);
+
         }catch (Exception $exception){
             throw new ConsumeException($exception->getMessage(),ConsumeErrorLogModel::TYPE_AGENT,$agent_id);
         }
