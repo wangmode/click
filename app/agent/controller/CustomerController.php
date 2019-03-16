@@ -26,7 +26,7 @@ use think\Exception;
 class CustomerController extends UserBaseController
 {
 
-    const KEY_PREFIX = "keyword_result_";
+
     /**
      * 客户列表
      */
@@ -289,34 +289,25 @@ class CustomerController extends UserBaseController
     {
         $data        = $this->request->param();
         $agent_id    = cmf_get_current_user_id();
-        $url = $data['url'];
-        $customer_id = $data['customer_id'];
+        $url = $this->request->param('url','','string');
+        $customer_id = $this->request->param('customer_id',0,'intval');
+        if(empty($url)){
+            throw new Exception("非法访问！");
+        }
+        if(empty($customer_id)){
+            throw new Exception("网址不可为空");
+        }
         unset($data['url']);
         unset($data['customer_id']);
-        if(array_key_exists('layTableCheckbox',$data)){
-            unset($data['layTableCheckbox']);
-        }
-        $res = [];
-        foreach ($data as $key=>$value){
-            $keys = substr($key,15);
-            $keys_arr = explode("-",$keys);
-            if(strcmp($keys_arr[1],'setmeal') !== 0){
-                $res[$keys_arr[0]]['price'][] = $keys_arr[1];
-                $res[$keys_arr[0]]['setmeal'] = $data['keyword_result_'.$keys_arr[0].'-setmeal'];
-                $res[$keys_arr[0]]['url'] = $url;
-                $res[$keys_arr[0]]['customer_id'] = $customer_id;
-            }
-        }
         try{
             Db::startTrans();
-            foreach ($res as $key => $val){
-                KeywordProductModel::newKeywordProduct($agent_id,self::KEY_PREFIX.$key,$val);
-            }
+            $res = GettingKeywordModel::keywordDataHandle($url,$customer_id,$data);
+            KeywordProductModel::newKeywordProduct($agent_id,$res);
             Db::commit();
             return $this->returnJson(self::STATUS_OK,null,'添加关键词成功！');
         }catch (Exception $exception){
             Db::rollback();
-            return $this->returnJson(self::STATUS_FAIL,null,'添加关键词失败！');
+            return $this->returnJson(self::STATUS_FAIL,null,$exception->getMessage());
         }
     }
 
