@@ -9,6 +9,7 @@ namespace app\agent\model;
 
 use think\Db;
 use think\Model;
+use app\common\Model\CustomerModel as CommonCustomerModel;
 
 class KeywordProductModel extends Model
 {
@@ -33,7 +34,6 @@ class KeywordProductModel extends Model
                     ->group('days')
                     ->having("time > $time")
                     ->find();
-
         return $data;
     }
 
@@ -43,23 +43,53 @@ class KeywordProductModel extends Model
      * @param $time
      * @return mixed
      */
-    public function getCustomer($agentId,$time)
+    public function getCustomer($agentId,$time,$page,$limit)
     {
-        $sql = <<<sql
-        select cu.company,kw.keyword,date_format(ccr.time,'%Y-%m-%d') as days,ccr.customer_id,SUM(ccr.money) as total_money
-from yzt_keyword_product as ke 
-LEFT JOIN daili_cmf.yzt_customer as cu ON ke.customer_id = cu.id
-LEFT JOIN yzt_keyword as kw ON ke.keyword_id = kw.id
-LEFT JOIN yzt_customer_consume_record as ccr ON ke.id = ccr.source_id
-where ke.agent_id = $agentId AND ccr.time between "$time" and "$time 23:59:59"
-GROUP BY ke.customer_id
-sql;
-//        return $sql;
-        $data = db::query($sql);
+        $start = ($page-1)*$limit;
+        $data = self::alias('kp')
+            ->join('keyword k','kp.keyword_id = k.id','left')
+            ->join('customer_consume_record ccr','kp.id = ccr.source_id','left')
+            ->where('kp.agent_id',$agentId)
+            ->where('ccr.time','between',[$time,"$time 23:59:59"])
+            ->limit($start,$limit)
+            ->field(['kp.id','k.keyword',"date_format(ccr.time,'%Y-%m-%d') as days",'kp.customer_id','SUM(ccr.money) as total_money'])
+            ->group('kp.customer_id')
+            ->select();
+        foreach ($data as $key=>$val){
+            $data[$key]['company'] = CommonCustomerModel::getCustomerCompanyById($val['customer_id']);
+        }
         return $data;
     }
 
+    /**
+     * 获取客户消费记录条数
+     * @param $agentId
+     * @param $time
+     * @return int|string
+     * @throws \think\Exception
+     */
+    public function getCustomerCount($agentId,$time)
+    {
+        $count = self::alias('kp')
+            ->join('keyword k','kp.keyword_id = k.id','left')
+            ->join('customer_consume_record ccr','kp.id = ccr.source_id','left')
+            ->where('kp.agent_id',$agentId)
+            ->where('ccr.time','between',[$time,"$time 23:59:59"])
+            ->field("date_format(ccr.time,'%Y-%m-%d') as days")
+            ->group('kp.customer_id')
+            ->count();
+        return $count;
+    }
 
+    public function getCustomerDataHandle($data)
+    {
+        $CustomerModel = new CustomerConsumeRecordModel();
+        foreach ($data as $key => $val){
+            $data[$key]['money_all'] = $CustomerModel->getCustomerMoneyAll($val['customer_id'])['money_all'];
+            $data[$key]['total_money'] = $data[$key]['total_money']."/天";
+        }
+        return $data;
+    }
 
 
 }

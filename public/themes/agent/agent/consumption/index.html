@@ -76,7 +76,7 @@
                         {field: 'xuhao', title: '序号',type:'numbers',align:'center'}
                         ,{field: 'number', title: '关键词数/总数',align:'center'}
                         ,{field: 'time', title: '扣费日期',align:'center'}
-                        ,{field: 'c_moeny', title: '消费金额',align:'center'}
+                        ,{field: 'c_money', title: '消费金额',align:'center'}
                         ,{field: 'balance', title: '剩余费用',align:'center'}
                         ,{fixed: 'right', title: '操作', align:'center', toolbar: '#options'}
                     ]]
@@ -88,7 +88,7 @@
                     if(obj.event === 'edit'){
 
                         // window_open('客户详情','/agent/consumption/getCustomerData/time/'+data.time+'.html','800','600');
-                        window_open('客户详情','/agent/consumption/edit/time/'+data.time+'.html','800','600');
+                        window_open('客户详情','/agent/consumption/edit/time/'+data.time+'.html','1500','800');
 
                     }else if(obj.event === 'deploy'){
                         var mask = layer.load(0, {

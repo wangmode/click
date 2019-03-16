@@ -49,6 +49,7 @@
                         <div class="layui-inline" id="demoTable">
                             <!--<button id="sub" class="layui-btn"  data-type="getCheckData">提交</button>-->
                             <button class="layui-btn" lay-submit="" lay-filter="getCheckData">立即提交</button>
+                            <button type="reset" class="layui-btn">重置</button>
                         </div>
                     </div>
                 </div>
@@ -116,13 +117,24 @@
 
                 form.on('submit(getCheckData)', function(data){
                     data.field['customer_id'] = {$customer_id};
+                    var checkbox = $("input[type='checkbox']:checked").val();
+                    if (typeof (checkbox) == "undefined") {
+                        layer.alert("请选择搜索引擎");
+                        return false;
+                    }
+                    var radio = $("input[type='radio']:checked").val();
+                    if (typeof (radio) == "undefined") {
+                        layer.alert("请选择计费时间");
+                        return false;
+                    }
                     $.post("{:url('Customer/addKeywords')}",data.field,function(res){
                         if(res.status == 1){
                             layer.alert(res.message);
                         }else{
-                            layer.alert(res.message);
+                            layer.alert("操作有误，添加失败！");
                         }
                     },'json');
+                    return false;
                 });
             });
 

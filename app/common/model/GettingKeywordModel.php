@@ -21,6 +21,8 @@ class GettingKeywordModel extends Model
 
     const KEYWORD_TIME = 86400;
 
+    const KEY_PREFIX = "keyword_result_";
+
     private $redis ;
 
     public function __construct()
@@ -34,7 +36,7 @@ class GettingKeywordModel extends Model
      */
     private function getResultKey($keyword)
     {
-        return 'keyword_result_'.md5($keyword);
+        return self::KEY_PREFIX.md5($keyword);
     }
 
     /**
@@ -185,6 +187,32 @@ class GettingKeywordModel extends Model
             $data = array_merge($data,$this->processResult($keyword,$i));
         }
         return $data;
+    }
+
+    /**
+     * 提交关键词数据处理
+     * @param $url          //URL
+     * @param $customer_id  //客户ID
+     * @param $data         //关键词数据
+     * @return array
+     */
+    static public function keywordDataHandle($url,$customer_id,$data)
+    {
+        if(array_key_exists('layTableCheckbox',$data)){
+            unset($data['layTableCheckbox']);
+        }
+        $res = [];
+        foreach ($data as $key=>$value){
+            $keys = substr($key,15);
+            $keys_arr = explode("-",$keys);
+            if(strcmp($keys_arr[1],'setmeal') !== 0){
+                $res[$keys_arr[0]]['price'][] = $keys_arr[1];
+                $res[$keys_arr[0]]['setmeal'] = $data[self::KEY_PREFIX.$keys_arr[0].'-setmeal'];
+                $res[$keys_arr[0]]['url'] = $url;
+                $res[$keys_arr[0]]['customer_id'] = $customer_id;
+            }
+        }
+        return $res;
     }
 
 

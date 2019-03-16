@@ -9,8 +9,8 @@ namespace app\agent\controller;
 use cmf\controller\UserBaseController;
 use app\agent\model\KeywordProductModel;
 use app\agent\model\AgentConsumeRecordModel;
-use app\agent\model\CustomerConsumeRecordModel;
 use app\agent\model\AgentModel;
+use think\Exception;
 
 class ConsumptionController extends UserBaseController
 {
@@ -31,56 +31,52 @@ class ConsumptionController extends UserBaseController
         $this->assign('time',$time);
         return $this->fetch();
     }
+
     /**
-     * 获取代理商消费记录
+     *  获取代理商消费记录
      * @return \think\response\Json
-     * @throws \think\db\exception\BindParamException
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     * @throws \think\exception\PDOException
      */
     public function getAgentData()
     {
+        $limit      = $this->request->param('limit',10,'intval');
+        $page       = $this->request->param('page',1,'intval');
         $agentId    = cmf_get_current_user_id();
         $model      = new AgentConsumeRecordModel();
-        $keywordModel = new KeywordProductModel();
-        $agentData  = $model->getAgentData($agentId);
-        foreach ($agentData as $key=>$val){
-            $agentData[$key]['total']  = $keywordModel->getTotal($agentId,$val['time'])['total'];
-            $agentData[$key]['number'] = $agentData[$key]['num'].'/'.$agentData[$key]['total'];
+        try {
+            if(empty($agentId)){
+                throw new Exception("非法访问！");
+            }
+            $count         =$model->getAgentCount($agentId);
+            $agentData     = $model->getAgentData($agentId,$page,$limit);
+            $agentDataList = $model->getAgentDataHandle($agentData,$agentId);
+            return $this->returnListJson(self::CODE_OK,$count,$agentDataList,'获取客户信息成功');
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
-        $data['code'] = 200;
-        $data['count'] = count($agentData);
-        $data['message'] = '';
-        $data['data'] = $agentData;
-        return json($data);
     }
 
     /**
      * 查询消费记录客户详细信息
      * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
      */
     public function getCustomerData()
     {
-        $time = $this->request->param('time');
-        $agentId    = cmf_get_current_user_id();
+        $limit        = $this->request->param('limit',10,'intval');
+        $page         = $this->request->param('page',1,'intval');
+        $time         = $this->request->param('time');
+        $agentId      = cmf_get_current_user_id();
         $keywordModel = new KeywordProductModel();
-        $CustomerModel = new CustomerConsumeRecordModel();
-        $customerData = $keywordModel->getCustomer($agentId,$time);
-        foreach ($customerData as $key => $val){
-            $customerData[$key]['money_all'] = $CustomerModel->getCustomerMoneyAll($val['customer_id'])['money_all'];
-            $customerData[$key]['total_money'] = $customerData[$key]['total_money']."/天";
+        try{
+            if(empty($agentId)){
+                throw new Exception("非法访问！");
+            }
+            $count            = $keywordModel->getCustomerCount($agentId,$time);
+            $customerData     = $keywordModel->getCustomer($agentId,$time,$page,$limit);
+            $customerDataList = $keywordModel->getCustomerDataHandle($customerData);
+            return $this->returnListJson(self::CODE_OK,$count,$customerDataList,'获取客户信息成功');
+        }catch (Exception $exception){
+            return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
         }
-
-        $data['code'] = 200;
-        $data['count'] = count($customerData);
-        $data['message'] = '';
-        $data['data'] = $customerData;
-        return json($data);
     }
 
 

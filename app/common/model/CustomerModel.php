@@ -64,6 +64,16 @@ class CustomerModel extends Model
     }
 
 
+    /**
+     * 通过ID获取客户名称
+     * @param $id
+     * @return mixed
+     */
+    static public function getCustomerCompanyById($id)
+    {
+        return self::where('id',$id)->value('company');
+    }
+
 
 
 
