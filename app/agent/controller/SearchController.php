@@ -37,48 +37,51 @@ class SearchController extends UserBaseController {
     public function data(){
         $info = $this->request->param();
         $keywords = new GettingKeywordModel();
-        $datas = $keywords->getKeywordLists('1', $info['keywords'], "1", '10');
-           if (!empty($datas['list'])) {
-                if (!empty($datas['list'])) {
-                    $data = $keywords->getKeyword($datas , $info['keywords']);
+        if (!empty($info['keywords'])){
+
+            $datas = $keywords->getKeywordLists('1', $info['keywords'], "1", '10');
+               if (!empty($datas['list'])) {
+                    if (!empty($datas['list'])) {
+                        $data = $keywords->getKeyword($datas , $info['keywords']);
+                    }else {
+                        $data = [];
+                    }
                 }else {
-                    $data = [];
-                }
-            }else {
-                $data = [
-                    'list' =>[
-                        'keyword' => $info['keywords'],
-                        'price' => [
-                            0 => [
-                                'id'=> 1,
-                                'name'=>'百度',
-                                'price'=>4.5
-                            ],
-                            1 => [
-                                'id'=> 2,
-                                'name'=>'360',
-                                'price'=>3.6
-                            ],
-                            2 => [
-                                'id'=> 3,
-                                'name'=>'搜狗',
-                                'price'=>2.70
-                            ],
-                            3 => [
-                                'id'=> 4,
-                                'name'=>'神马',
-                                'price'=>2.25
-                            ],
-                            4 => [
-                                'id'=> 5,
-                                'name'=>'神马',
-                                'price'=>5.40
+                    $data = [
+                        'list' =>[
+                            'keyword' => $info['keywords'],
+                            'price' => [
+                                0 => [
+                                    'id'=> 1,
+                                    'name'=>'百度',
+                                    'price'=>4.5
+                                ],
+                                1 => [
+                                    'id'=> 2,
+                                    'name'=>'360',
+                                    'price'=>3.6
+                                ],
+                                2 => [
+                                    'id'=> 3,
+                                    'name'=>'搜狗',
+                                    'price'=>2.70
+                                ],
+                                3 => [
+                                    'id'=> 4,
+                                    'name'=>'神马',
+                                    'price'=>2.25
+                                ],
+                                4 => [
+                                    'id'=> 5,
+                                    'name'=>'神马',
+                                    'price'=>5.40
+                                ]
                             ]
                         ]
-                    ]
-                ];
-            }
-             return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
+                    ];
+                }
+                 return $this->returnListJson(self::CODE_OK, "1", $data, '返回搜索数据');
+        }
     }
 
     public function datas()
