@@ -21,7 +21,7 @@ class GettingKeywordModel extends Model
 
     const KEYWORD_TIME = 86400;
 
-    const KEY_PREFIX = "keyword_result_";
+    const KEY_PREFIX = "keyword_value_";
 
     private $redis ;
 
@@ -36,7 +36,7 @@ class GettingKeywordModel extends Model
      */
     private function getResultKey($keyword)
     {
-        return self::KEY_PREFIX.md5($keyword);
+        return 'keyword_key_'.md5($keyword);
     }
 
     /**
@@ -132,6 +132,7 @@ class GettingKeywordModel extends Model
         $result_list = json_decode($this->getKeywordWord($keyword,$page),true);
         foreach ($result_list['data']['word'] as $key => $val){
             if($val['keyword'] === $keyword){
+                $val['key_id'] = $this->getResultValue($keyword);
                 $this->redis->set($this->getResultValue($keyword),$val,self::KEYWORD_TIME);
             }
         }
@@ -149,7 +150,6 @@ class GettingKeywordModel extends Model
     private function setKeywordResult($keyword)
     {
         $data = $this->getKeywordResultData($keyword);
-        $data['key_id'] = $this->getResultKey($keyword);
         $this->redis->set($this->getResultKey($keyword),$data,self::KEYWORD_TIME);
     }
 
@@ -203,7 +203,7 @@ class GettingKeywordModel extends Model
         }
         $res = [];
         foreach ($data as $key=>$value){
-            $keys = substr($key,15);
+            $keys = substr($key,14);
             $keys_arr = explode("-",$keys);
             if(strcmp($keys_arr[1],'setmeal') !== 0){
                 $res[$keys_arr[0]]['price'][] = $keys_arr[1];
