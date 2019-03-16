@@ -5,6 +5,8 @@
  * Date: 2019/3/13
  * Time: 10:29
  */
+namespace  app\common\Exception;
+
 
 use app\common\Model\ConsumeErrorLogModel;
 

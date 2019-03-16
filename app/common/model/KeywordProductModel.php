@@ -9,7 +9,7 @@
 namespace app\common\model;
 
 
-use ConsumeException;
+use app\common\Exception\ConsumeException;
 use think\Exception;
 use think\exception\PDOException;
 use think\Model;
@@ -179,7 +179,7 @@ class KeywordProductModel extends Model
      * @param $ranking      //排名
      * @return KeywordProductModel
      */
-    private function upKeywordProductIsTop($id,$ranking)
+    static private function upKeywordProductIsTop($id,$ranking)
     {
         return self::updateKeywordProductIsTop($id,self::IS_TOP_YES,$ranking);
     }
@@ -190,7 +190,7 @@ class KeywordProductModel extends Model
      * @param $id           //套餐产品ID
      * @return KeywordProductModel
      */
-    public function lowerKeywordProductIsTop($id)
+    static public function lowerKeywordProductIsTop($id)
     {
         return self::updateKeywordProductIsTop($id,self::IS_TOP_NO);
     }
@@ -203,7 +203,7 @@ class KeywordProductModel extends Model
      * @param int $ranking
      * @return KeywordProductModel
      */
-    private function updateKeywordProductIsTop($id,$is_top,$ranking=0)
+    static private function updateKeywordProductIsTop($id,$is_top,$ranking=0)
     {
         return self::where('id',$id)->where('status',self::STATUS_NORMAL)->update(['is_top'=>$is_top,'ranking'=>$ranking]);
     }
