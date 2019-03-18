@@ -11,6 +11,12 @@ class SearchModel extends  Model
 
     function Search($table , $keyword)
     {
+        $data = self::where('keyword',"$keyword")->name("$table")->select();
+        return $data;
+    }
+
+    function select($table , $keyword)
+    {
         $data = self::where('name','like' , "%$keyword%")->name("$table")->select();
         return $data;
     }

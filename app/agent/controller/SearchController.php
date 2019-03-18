@@ -28,9 +28,6 @@ class SearchController extends UserBaseController {
     {
         $product = ProductModel::getProductList();
         $this->assign('product',$product);
-        //$keywords = new GettingKeywordModel();
-     //   $datas = $keywords->getKeywordList('1', [0 ,23], "1", '10');
-      //  dump($datas);
         return $this->fetch();
     }
 
@@ -38,15 +35,11 @@ class SearchController extends UserBaseController {
         $info = $this->request->param();
         $keywords = new GettingKeywordModel();
         if (!empty($info['keywords'])){
+            try {
+                $datas = $keywords->getKeywordLists('1', $info['keywords'], "1", '10');
 
-            $datas = $keywords->getKeywordLists('1', $info['keywords'], "1", '10');
-               if (!empty($datas['list'])) {
-                    if (!empty($datas['list'])) {
-                        $data = $keywords->getKeyword($datas , $info['keywords']);
-                    }else {
-                        $data = [];
-                    }
-                }else {
+                $data = $keywords->getKeyword($datas, $info['keywords']);
+            }catch (Exception $a){
                     $data = [
                         'list' =>[
                             'keyword' => $info['keywords'],
