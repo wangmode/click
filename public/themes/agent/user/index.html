@@ -22,11 +22,6 @@
                         <i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i>
                     </a>
                 </li>
-                <li class="layui-nav-item layui-hide-xs" lay-unselect>
-                    <a href="/" target="_blank" title="前台">
-                        <i class="layui-icon layui-icon-website"></i>
-                    </a>
-                </li>
                 <li class="layui-nav-item" lay-unselect>
                     <a href="javascript:;" layadmin-event="refresh" title="刷新">
                         <i class="layui-icon layui-icon-refresh-3"></i>
@@ -34,22 +29,22 @@
                 </li>
             </ul>
             <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
-                <li class="layui-nav-item" lay-unselect>
-                    <a lay-href="{:url('setting/update')}" layadmin-event="message" lay-text="版本更新">
-                        <i class="layui-icon layui-icon-notice"></i>
-                            <span class="layui-badge-dot"></span>
-                    </a>
-                </li>
-                <li class="layui-nav-item layui-hide-xs" lay-unselect>
-                    <a href="javascript:;" layadmin-event="theme">
-                        <i class="layui-icon layui-icon-theme"></i>
-                    </a>
-                </li>
-                <li class="layui-nav-item layui-hide-xs" lay-unselect>
-                    <a href="javascript:;" layadmin-event="note">
-                        <i class="layui-icon layui-icon-note"></i>
-                    </a>
-                </li>
+                <!--<li class="layui-nav-item" lay-unselect>-->
+                    <!--<a lay-href="{:url('setting/update')}" layadmin-event="message" lay-text="版本更新">-->
+                        <!--<i class="layui-icon layui-icon-notice"></i>-->
+                            <!--<span class="layui-badge-dot"></span>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li class="layui-nav-item layui-hide-xs" lay-unselect>-->
+                    <!--<a href="javascript:;" layadmin-event="theme">-->
+                        <!--<i class="layui-icon layui-icon-theme"></i>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <!--<li class="layui-nav-item layui-hide-xs" lay-unselect>-->
+                    <!--<a href="javascript:;" layadmin-event="note">-->
+                        <!--<i class="layui-icon layui-icon-note"></i>-->
+                    <!--</a>-->
+                <!--</li>-->
                 <li class="layui-nav-item layui-hide-xs" lay-unselect>
                     <a href="javascript:;" layadmin-event="fullscreen">
                         <i class="layui-icon layui-icon-screen-full"></i>
@@ -57,13 +52,13 @@
                 </li>
                 <li class="layui-nav-item" lay-unselect>
                     <a href="javascript:;">
-                        <cite>admin</cite>
+                        <cite>{$user.company}</cite>
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a lay-href="{:url('setting/password')}">修改密码</a></dd>
-                        <dd><a lay-href="{:url('admin/Setting/clearcache')}">清理缓存</a></dd>
+                        <!--<dd><a lay-href="{:url('Setting/clearcache')}">清理缓存</a></dd>-->
                         <hr>
-                        <dd  style="text-align: center;"><a href="{:url('Public/logout')}">退出</a></dd>
+                        <dd  style="text-align: center;"><a href="{:url('index/logout')}">退出</a></dd>
                     </dl>
                 </li>
 
@@ -90,19 +85,22 @@
                             <span class="layui-nav-more"></span>
                         </a>
                         <dl class="layui-nav-child">
-                            <dd  data-name="7admin"><a lay-href="/user/customer/index.html">客户列表</a></dd>
+                            <dd  data-name="7admin"><a lay-href="/user/customer/keywordList.html">关键词列表</a></dd>
                         </dl>
+                        <!--<dl class="layui-nav-child">-->
+                            <!--<dd  data-name="7admin"><a lay-href="/user/customer/index.html">客户列表</a></dd>-->
+                        <!--</dl>-->
                     </li>
-                    <li data-name="6admin" class="layui-nav-item">
-                        <a href="javascript:;" lay-tips="在线充值" lay-direction="2">
-                            <i class="layui-icon layui-icon-template"></i>
-                            <cite>在线充值</cite>
-                            <span class="layui-nav-more"></span>
-                        </a>
-                        <dl class="layui-nav-child">
-                            <dd  data-name="7admin"><a lay-href="#">在线充值</a></dd>
-                        </dl>
-                    </li>
+                    <!--<li data-name="6admin" class="layui-nav-item">-->
+                        <!--<a href="javascript:;" lay-tips="在线充值" lay-direction="2">-->
+                            <!--<i class="layui-icon layui-icon-template"></i>-->
+                            <!--<cite>在线充值</cite>-->
+                            <!--<span class="layui-nav-more"></span>-->
+                        <!--</a>-->
+                        <!--<dl class="layui-nav-child">-->
+                            <!--<dd  data-name="7admin"><a lay-href="#">在线充值</a></dd>-->
+                        <!--</dl>-->
+                    <!--</li>-->
 
                 </ul>
             </div>

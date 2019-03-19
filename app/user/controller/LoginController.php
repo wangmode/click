@@ -12,7 +12,7 @@ namespace app\user\controller;
 
 use think\Validate;
 use cmf\controller\HomeBaseController;
-use app\user\model\AgentModel;
+use app\user\model\CustomerModel;
 
 class LoginController extends HomeBaseController
 {
@@ -29,10 +29,10 @@ class LoginController extends HomeBaseController
             $redirect = base64_decode($redirect);
         }
         session('login_http_referer', $redirect);
-        if (cmf_is_user_login()) { //已经登录时直接跳到首页
-            return redirect($this->request->root() . '/');
+        if (cmf_is_users_login()) { //已经登录时直接跳到首页
+            return redirect($this->request->root() . 'index/index');
         } else {
-            return $this->fetch(":login");
+            return $this->fetch(':login');
         }
     }
 
@@ -56,6 +56,7 @@ class LoginController extends HomeBaseController
             ]);
 
             $data = $this->request->post();
+
             if (!$validate->check($data)) {
                 return json(['status'=>0,'msg'=>$validate->getError()]);
             }
@@ -63,14 +64,13 @@ class LoginController extends HomeBaseController
             if (!cmf_captcha_check($data['captcha'])) {
                 return json(['status'=>0,'msg'=>lang('CAPTCHA_NOT_RIGHT')]);
             }
-            $userModel         = new AgentModel();
+            $userModel         = new CustomerModel();
             $user['password'] = $data['password'];
             $user['account'] = $data['username'];
 
             $log   = $userModel->doName($user);
-
             $session_login_http_referer = session('login_http_referer');
-            $redirect                   = empty($session_login_http_referer) ? $this->request->root() : $session_login_http_referer;
+            $redirect = empty($session_login_http_referer) ? $this->request->root() : $session_login_http_referer;
 
             if($log['status']==1){
                 return json(['status'=>1,'msg'=>$log['massage'],'url'=>$redirect]);
@@ -81,79 +81,4 @@ class LoginController extends HomeBaseController
             return json(['status'=>0,'msg'=>'请求错误!']);
         }
     }
-
-    /**
-     * 找回密码
-     */
-    public function findPassword()
-    {
-        return $this->fetch('/find_password');
-    }
-
-    /**
-     * 用户密码重置
-     */
-    public function passwordReset()
-    {
-
-        if ($this->request->isPost()) {
-            $validate = new Validate([
-                'captcha'           => 'require',
-                'verification_code' => 'require',
-                'password'          => 'require|min:6|max:32',
-            ]);
-            $validate->message([
-                'verification_code.require' => '验证码不能为空',
-                'password.require'          => '密码不能为空',
-                'password.max'              => '密码不能超过32个字符',
-                'password.min'              => '密码不能小于6个字符',
-                'captcha.require'           => '验证码不能为空',
-            ]);
-
-            $data = $this->request->post();
-            if (!$validate->check($data)) {
-                $this->error($validate->getError());
-            }
-
-            $captchaId = empty($data['_captcha_id']) ? '' : $data['_captcha_id'];
-            if (!cmf_captcha_check($data['captcha'], $captchaId)) {
-                $this->error('验证码错误');
-            }
-
-            $errMsg = cmf_check_verification_code($data['username'], $data['verification_code']);
-            if (!empty($errMsg)) {
-                $this->error($errMsg);
-            }
-
-            $userModel = new UserModel();
-            if ($validate::is($data['username'], 'email')) {
-
-                $log = $userModel->emailPasswordReset($data['username'], $data['password']);
-
-            } else if (cmf_check_mobile($data['username'])) {
-                $user['mobile'] = $data['username'];
-                $log            = $userModel->mobilePasswordReset($data['username'], $data['password']);
-            } else {
-                $log = 2;
-            }
-            switch ($log) {
-                case 0:
-                    $this->success('密码重置成功', $this->request->root());
-                    break;
-                case 1:
-                    $this->error("您的账户尚未注册");
-                    break;
-                case 2:
-                    $this->error("您输入的账号格式错误");
-                    break;
-                default :
-                    $this->error('未受理的请求');
-            }
-
-        } else {
-            $this->error("请求错误");
-        }
-    }
-
-
 }
