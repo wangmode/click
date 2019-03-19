@@ -21,11 +21,10 @@ class IndexController extends HomeBaseController
      */
     public function index()
     {
-        $user = cmf_get_current_user();
+        $user = cmf_get_current_customer();
         if (empty($user)) {
             $this->error("查无此人！");
         }
-        $this->assign($user);
         $this->assign('user',$user);
         return $this->fetch(":index");
     }
@@ -35,7 +34,7 @@ class IndexController extends HomeBaseController
      */
     function isLogin()
     {
-        if (cmf_is_user_login()) {
+        if (cmf_is_users_login()) {
             $this->success("用户已登录",null,['user'=>cmf_get_current_user()]);
         } else {
             $this->error("此用户未登录!");
@@ -47,8 +46,8 @@ class IndexController extends HomeBaseController
     */
     public function logout()
     {
-        session("user", null);//只有前台用户退出
-        return redirect($this->request->root() . "/");
+        session("customer", null);//只有前台用户退出
+        return redirect($this->request->root() . "login/index");
     }
 
 }

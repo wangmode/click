@@ -101,7 +101,7 @@ class CustomerModel extends Model
             'city'          =>$data['city']
         ];
         if(!empty($data['password'])){
-            $info['password'] = $data['password'];
+            $info['password'] = password_hash($data['password'],PASSWORD_DEFAULT);
         }
         self::update($info);
     }

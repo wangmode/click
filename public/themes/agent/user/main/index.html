@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>首页</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="__TMPL__/public/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="__TMPL__/public/style/admin.css" media="all">
+    <script type="text/javascript" src="__TMPL__/public/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/layui.js"></script>
+    <script type="text/javascript" src="__TMPL__/public/layui/admin.js"></script>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+
+
+        <!--第三列-->
+
+        <div class="layui-col-sm12">
+
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="layui-col-sm8">
+                            <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-pagetwo">
+                                <div carousel-item id="LAY-index-pagetwo">
+                                    <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-sm4">
+                            <div class="layui-card-header">
+                                网站公告
+                                <i class="layui-icon layui-icon-tips" lay-tips="要支持的噢" lay-offset="5"></i>
+                            </div>
+                            <div class="layui-card-body layui-text layadmin-text">
+                                <p>所有代理商禁止发布任何敏感或者擦边信息；</p>
+
+                                <p>第一次发现：客户账户封号，第二次发现：惩罚性扣款3000元，账户封掉 第三次发现：代理账户封掉，款项不退。</p>
+
+                                <p>请各位合作伙伴尤为注意。</p>
+
+                                <p>包括但不限于：代孕/气枪/中奖/办证/赌博/私家侦探/博彩/私服/百家乐/气狗/医疗/医药/医院/美容/明星经纪公司/商业调查/无线耳机/偷拍设备/低价电脑数码产品/N折充值卡/摩托车/刻章/发票/化学违禁品/管制枪支刀具/成人用品/信用卡/香烟/按摩/代考/代发论文/涉黄/攻击性的言辞/违法的内容/比较低级粗俗的广告/同行业品牌词/带微信两字的词。</p>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.config({
+        base: '__TMPL__/public/', //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index'], function(){
+        layui.define(function(e) {
+            var a = layui.admin;
+            layui.use(["admin", "carousel"],
+                function() {
+                    var e = layui.$,
+                        a = (layui.admin, layui.carousel),
+                        l = layui.element,
+                        t = layui.device();
+                    e(".layadmin-carousel").each(function() {
+                        var l = e(this);
+                        a.render({
+                            elem: this,
+                            width: "100%",
+                            arrow: "none",
+                            interval: l.data("interval"),
+                            autoplay: l.data("autoplay") === !0,
+                            trigger: t.ios || t.android ? "click": "hover",
+                            anim: l.data("anim")
+                        })
+                    }),
+                        l.render("progress")
+                });
+
+                layui.use(["carousel", "echarts"], function () {
+                    var data = [];
+                    $.ajax({
+                        type: 'post',
+                        data:{id:1},
+                        url: "{:url('Main/tongji')}",
+                        dataType: 'json',
+                        async: false,
+                        success: function (result) {
+                            if (result.code === 0) {
+                                data = result.data;
+                            }
+                        }
+                    });
+                    var e = layui.$,
+                        a = (layui.carousel, layui.echarts),
+                        l = [],
+                        t = [{
+                            tooltip: {
+                                trigger: "axis"
+                            },
+                            calculable: !0,
+                            legend: {
+                                data: ["优站通", "成交额", "网推侠"]
+                            },
+                            xAxis: [{
+                                type: "category",
+                                data: data.label
+                            }],
+                            yAxis: [{
+                                type: "value",
+                                name: "出单量",
+                                axisLabel: {
+                                    formatter: "{value} "
+                                }
+                            },
+                                {
+                                    type: "value",
+                                    name: "成交额",
+                                    axisLabel: {
+                                        formatter: "{value} "
+                                    }
+                                }],
+                            series: [{
+                                name: "优站通",
+                                type: "line",
+                                data: data.yzt
+                            },
+                                {
+                                    name: "成交额",
+                                    type: "line",
+                                    yAxisIndex: 1,
+                                    data: data.sum
+                                },
+                                {
+                                    name: "网推侠",
+                                    type: "line",
+                                    data: data.wtx
+                                }]
+                        }],
+                        i = e("#LAY-index-pagetwo").children("div"),
+                        n = function (e) {
+                            l[e] = a.init(i[e], layui.echartsTheme),
+                                l[e].setOption(t[e]),
+                                window.onresize = l[e].resize
+                        };
+                    i[0] && n(0)
+                });
+        });
+    });
+</script>
+</body>
+</html>

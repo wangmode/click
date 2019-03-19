@@ -37,12 +37,22 @@ function cmf_get_current_admin_id()
 }
 
 /**
- * 判断前台用户是否登录
+ * 判断代理是否登录
  * @return boolean
  */
 function cmf_is_user_login()
 {
     $sessionUser = session('user');
+    return !empty($sessionUser);
+}
+
+/**
+ * 判断前台用户是否登录
+ * @return boolean
+ */
+function cmf_is_users_login()
+{
+    $sessionUser = session('customer');
     return !empty($sessionUser);
 }
 
@@ -60,6 +70,32 @@ function cmf_get_current_user()
         return false;
     }
 }
+
+/**
+ * 获取当前登录的客户信息，未登录时，返回false
+ * @return array|boolean
+ */
+function cmf_get_current_customer()
+{
+    $sessionUser = session('customer');
+    if (!empty($sessionUser)) {
+        unset($sessionUser['user_pass']); // 销毁敏感数据
+        return $sessionUser;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * 获取当前客户的id
+ * @return mixed
+ */
+function cmf_get_current_customer_id()
+{
+    $sessionUser = session('customer.id');
+    return $sessionUser;
+}
+
 
 /**
  * 更新当前登录前台用户的信息
