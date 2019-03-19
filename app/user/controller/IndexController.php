@@ -11,9 +11,10 @@
 namespace app\user\controller;
 
 use app\user\model\AgentModel;
+use cmf\controller\CustomerBaseController;
 use cmf\controller\HomeBaseController;
 
-class IndexController extends HomeBaseController
+class IndexController extends CustomerBaseController
 {
 
     /**
@@ -23,7 +24,7 @@ class IndexController extends HomeBaseController
     {
         $user = cmf_get_current_customer();
         if (empty($user)) {
-            $this->error("查无此人！");
+            $this->redirect('login/index');
         }
         $this->assign('user',$user);
         return $this->fetch(":index");
