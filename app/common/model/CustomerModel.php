@@ -8,7 +8,7 @@
 
 namespace app\common\Model;
 
-use ConsumeException;
+use app\common\Exception\ConsumeException;
 use think\Exception;
 use think\Model;
 
