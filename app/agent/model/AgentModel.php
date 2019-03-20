@@ -221,5 +221,56 @@ class AgentModel extends Model
         return 0;
     }
 
+    /**
+     * 通过代理ID 获取代理商数据
+     * @param $agentId
+     * @return array|false|\PDOStatement|string|Model
+     */
+    public function getAgentData($agentId)
+    {
+        $agent_info = $this->where(["id" => $agentId])->find();
+        return $agent_info;
+    }
+
+    /**
+     * 修改代理商密码
+     * @param $data
+     * @param $agentData
+     * @param $agentId
+     * @return \think\response\Json
+     */
+    public function editAgentPassword($data,$agentData,$agentId)
+    {
+        $oldPassword = $data['old_password'];
+        $password    = $data['password'];
+        $rePassword  = $data['re_password'];
+
+        if (md5($oldPassword)==$agentData['password']) {
+            if ($password == $rePassword) {
+                if (md5($password)==$agentData['password']) {
+                    return json(['status'=>0,'msg'=>'新密码不能和原始密码相同']);
+                } else {
+                    $this->where('id', $agentId)->update(['password' => md5($password)]);
+                    return json(['status'=>1,'msg'=>'密码修改成功']);
+                }
+            } else {
+                return json(['status'=>0,'msg'=>'密码输入不一致']);
+            }
+        } else {
+            return json(['status'=>0,'msg'=>'原始密码不正确']);
+        }
+    }
+
+    /**
+     * 更新代理商资料
+     * @param $agentId
+     * @param $data
+     * @return AgentModel
+     */
+    public function updateAgentData($agentId,$data)
+    {
+        $re = $this->where('id', $agentId)->update($data);
+        return $re;
+    }
 }
 

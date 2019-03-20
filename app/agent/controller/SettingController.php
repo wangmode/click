@@ -10,8 +10,10 @@
 // +----------------------------------------------------------------------
 namespace app\agent\controller;
 
+use app\agent\model\AgentModel;
 use cmf\controller\UserBaseController;
 use \think\Db;
+use think\Exception;
 use \think\Validate;
 class SettingController extends UserBaseController
 {
@@ -35,9 +37,10 @@ class SettingController extends UserBaseController
         $data['email'] = $info['email'];
         $data['qq'] = $info['qq'];
         $id = cmf_get_current_user_id();
-        $re = Db::name('agent')->where('id', $id)->update($data);
+        $model = new AgentModel();
+        $re = $model->updateAgentData($id,$data);
         if($re){
-            $userInfo = Db::name('agent')->where('id', $id)->find();
+            $userInfo = $model->getAgentData($id);
             cmf_update_current_user($userInfo);
             return json(['status'=>1,'msg'=>'更新成功！']);
         }else{
@@ -205,25 +208,13 @@ class SettingController extends UserBaseController
 
             $userId = cmf_get_current_user_id();
 
-            $agent_info = Db::name('agent')->where(["id" => $userId])->find();
-
-            $oldPassword = $data['old_password'];
-            $password    = $data['password'];
-            $rePassword  = $data['re_password'];
-
-            if (md5($oldPassword)==$agent_info['password']) {
-                if ($password == $rePassword) {
-                    if (md5($password)==$agent_info['password']) {
-                        return json(['status'=>0,'msg'=>'新密码不能和原始密码相同']);
-                    } else {
-                        db('agent')->where('id', $userId)->update(['password' => md5($password)]);
-                        return json(['status'=>1,'msg'=>'密码修改成功']);
-                    }
-                } else {
-                    return json(['status'=>0,'msg'=>'密码输入不一致']);
-                }
-            } else {
-                return json(['status'=>0,'msg'=>'原始密码不正确']);
+            $agent = new AgentModel();
+            try{
+                $agentData = $agent->getAgentData($userId);
+                $result = $agent->editAgentPassword($data,$agentData,$userId);
+                return $result;
+            }catch (Exception $exception){
+                return $this->returnListJson(self::CODE_FAIL,0,null,$exception->getMessage());
             }
         }
     }
