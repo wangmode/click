@@ -131,7 +131,7 @@
                         if(res.status == 1){
                             layer.alert(res.message);
                         }else{
-                            layer.alert("操作有误，添加失败！");
+                            layer.alert(res.message);
                         }
                     },'json');
                 });

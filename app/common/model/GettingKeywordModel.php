@@ -207,7 +207,7 @@ class GettingKeywordModel extends Model
             $keys_arr = explode("-",$keys);
             if(strcmp($keys_arr[1],'setmeal') !== 0){
                 $res[$keys_arr[0]]['price'][] = $keys_arr[1];
-                $res[$keys_arr[0]]['setmeal'] = $data[self::KEY_PREFIX.$keys_arr[0].'-setmeal'];
+                $res[$keys_arr[0]]['setmeal'] = isset($data[self::KEY_PREFIX.$keys_arr[0].'-setmeal'])?$data[self::KEY_PREFIX.$keys_arr[0].'-setmeal']:'';
                 $res[$keys_arr[0]]['url'] = $url;
                 $res[$keys_arr[0]]['customer_id'] = $customer_id;
             }

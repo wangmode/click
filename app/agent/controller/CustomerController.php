@@ -291,17 +291,26 @@ class CustomerController extends UserBaseController
         $agent_id    = cmf_get_current_user_id();
         $url = $this->request->param('url','','string');
         $customer_id = $this->request->param('customer_id',0,'intval');
+        if(empty($data)){
+            throw new Exception("提交数据异常");
+        }
         if(empty($url)){
-            throw new Exception("非法访问！");
+            throw new Exception("网址不可为空");
         }
         if(empty($customer_id)){
-            throw new Exception("网址不可为空");
+            throw new Exception("非法访问！");
         }
         unset($data['url']);
         unset($data['customer_id']);
+        $res = GettingKeywordModel::keywordDataHandle($url,$customer_id,$data);
+        foreach ($res as $key => $val){
+            $validate = $this->validate($val,'Keyword');
+            if($validate !== true){
+                return $this->returnJson(self::STATUS_FAIL,null,$validate);
+            }
+        }
         try{
             Db::startTrans();
-            $res = GettingKeywordModel::keywordDataHandle($url,$customer_id,$data);
             KeywordProductModel::newKeywordProduct($agent_id,$res);
             Db::commit();
             return $this->returnJson(self::STATUS_OK,null,'添加关键词成功！');
