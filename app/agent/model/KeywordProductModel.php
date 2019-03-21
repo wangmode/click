@@ -9,7 +9,7 @@ namespace app\agent\model;
 
 use think\Db;
 use think\Model;
-use app\common\Model\CustomerModel as CommonCustomerModel;
+use app\common\model\CustomerModel as CommonCustomerModel;
 
 class KeywordProductModel extends Model
 {
