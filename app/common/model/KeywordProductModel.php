@@ -299,7 +299,7 @@ class KeywordProductModel extends Model
     {
         foreach ($data as $key=>$val){
             $gettingKeywrod = new GettingKeywordModel();
-            $list = $gettingKeywrod->getKeywordInfo($admin_id,GettingKeywordModel::KEY_PREFIX.$key);
+            $list = $gettingKeywrod->getKeywordInfo($admin_id,$key);
             $info = [];
             if(!isset($list['key_id']) || empty($list['key_id'])){
                 throw new Exception('数据错误，请重新挖掘关键词！');

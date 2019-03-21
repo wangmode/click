@@ -196,21 +196,14 @@ class GettingKeywordModel extends Model
      * @param $data         //关键词数据
      * @return array
      */
-    static public function keywordDataHandle($url,$customer_id,$data)
+    static public function keywordDataHandle($url,$customer_id,$k_id,$data)
     {
-        if(array_key_exists('layTableCheckbox',$data)){
-            unset($data['layTableCheckbox']);
-        }
         $res = [];
-        foreach ($data as $key=>$value){
-            $keys = substr($key,14);
-            $keys_arr = explode("-",$keys);
-            if(strcmp($keys_arr[1],'setmeal') !== 0){
-                $res[$keys_arr[0]]['price'][] = $keys_arr[1];
-                $res[$keys_arr[0]]['setmeal'] = isset($data[self::KEY_PREFIX.$keys_arr[0].'-setmeal'])?$data[self::KEY_PREFIX.$keys_arr[0].'-setmeal']:'';
-                $res[$keys_arr[0]]['url'] = $url;
-                $res[$keys_arr[0]]['customer_id'] = $customer_id;
-            }
+        foreach ($k_id as $key => $val){
+            $res[$val]['price'] = $data[$val];
+            $res[$val]['setmeal'] = $data[$val.'-setmeal'];
+            $res[$val]['url'] = $url;
+            $res[$val]['customer_id'] = $customer_id;
         }
         return $res;
     }

@@ -6,9 +6,9 @@
  * Time: 16:02
  */
 
-namespace app\common\Model;
+namespace app\common\model;
 
-use ConsumeException;
+use app\common\Exception\ConsumeException;
 use think\Model;
 
 class AgentModel extends Model

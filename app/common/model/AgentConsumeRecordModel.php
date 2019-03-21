@@ -6,12 +6,12 @@
  * Time: 15:56
  */
 
-namespace app\common\Model;
+namespace app\common\model;
 
 use think\Exception;
 use think\Model;
 use app\common\Exception\ConsumeException;
-use app\common\Model\AgentModel as CommonAgentModel;
+use app\common\model\AgentModel as CommonAgentModel;
 
 class AgentConsumeRecordModel extends Model
 {

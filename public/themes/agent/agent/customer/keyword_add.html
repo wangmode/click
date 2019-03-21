@@ -55,6 +55,11 @@
                 </div>
             </div>
         </form>
+        <script type="text/html" id="checkbox">
+            <!--<input type="checkbox" name='k_id[]' value="{{ d.key_id }}">-->
+            <input type="checkbox" name='k_id[]' lay-skin="primary" value="{{ d.key_id }}">
+        </script>
+
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -65,7 +70,7 @@
         </script>
         <script id="price" type="text/html">
             {{# layui.each(d.price,function(index,item){ }}
-                <input type="checkbox" name="{{ d.key_id }}-{{ item.id }}" lay-skin="primary" value="{{ item.id }}">{{ item.name }}：{{ item.price }}/天&nbsp&nbsp&nbsp&nbsp
+                <input type="checkbox" name="{{ d.key_id }}[]" lay-skin="primary" value="{{ item.id }}">{{ item.name }}：{{ item.price }}/天&nbsp&nbsp&nbsp&nbsp
             {{# }) }}
         </script>
         <script type="text/html" id="setmeal">
@@ -92,7 +97,7 @@
                     }
                     , page: true
                     , cols: [[ //表头
-                        {type: 'checkbox', fixed: 'left'}
+                        {field: 'k_id',title: '选择',toolbar: '#checkbox', fixed: 'left',width:70}
                         , {field: 'xuhao', title: '序号', type: 'numbers'}
                         , {field: 'keyword', title: '关键词', align: 'center'}
                         , {field: 'price', title: '搜索引擎', toolbar: '#price', width: 800}
@@ -127,13 +132,16 @@
                         layer.alert("请选择计费时间");
                         return false;
                     }
+                    console.log(data.field);
                     $.post("{:url('Customer/addKeywords')}",data.field,function(res){
                         if(res.status == 1){
                             layer.alert(res.message);
                         }else{
                             layer.alert(res.message);
+                            return false;
                         }
                     },'json');
+                    return false;
                 });
             });
 

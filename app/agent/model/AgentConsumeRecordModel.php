@@ -11,7 +11,7 @@ use app\common\model\ConsumeErrorLogModel;
 use app\agent\model\KeywordProductModel;
 use think\Db;
 use think\Exception;
-use ConsumeException;
+use app\common\Exception\ConsumeException;
 use think\Model;
 
 class AgentConsumeRecordModel extends Model

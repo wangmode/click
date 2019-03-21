@@ -11,7 +11,7 @@
 namespace app\agent\model;
 
 use app\common\model\ConsumeErrorLogModel;
-use ConsumeException;
+use app\common\Exception\ConsumeException;
 use app\common\model\UserTokenModel;
 use think\Db;
 use think\Exception;

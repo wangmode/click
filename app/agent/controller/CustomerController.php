@@ -291,20 +291,18 @@ class CustomerController extends UserBaseController
         $agent_id    = cmf_get_current_user_id();
         $url = $this->request->param('url','','string');
         $customer_id = $this->request->param('customer_id',0,'intval');
-        if(empty($data)){
+//        dump($data);die;
+
+        $k_id =$this->request->param('k_id/a');
+        if(empty($data) || empty($url) || empty($customer_id) || empty($k_id)){
             throw new Exception("提交数据异常");
         }
-        if(empty($url)){
-            throw new Exception("网址不可为空");
-        }
-        if(empty($customer_id)){
-            throw new Exception("非法访问！");
-        }
+//        unset($data['k_id']);
         unset($data['url']);
         unset($data['customer_id']);
-        $res = GettingKeywordModel::keywordDataHandle($url,$customer_id,$data);
-        foreach ($res as $key => $val){
-            $validate = $this->validate($val,'Keyword');
+        $res = GettingKeywordModel::keywordDataHandle($url,$customer_id,$k_id,$data);
+        foreach ($k_id as $key => $val){
+            $validate = $this->validate($res[$val],'Keyword');
             if($validate !== true){
                 return $this->returnJson(self::STATUS_FAIL,null,$validate);
             }

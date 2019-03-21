@@ -6,7 +6,7 @@
  * Time: 16:23
  */
 
-namespace app\common\Model;
+namespace app\common\model;
 
 use app\common\Exception\ConsumeException;
 use think\Exception;
